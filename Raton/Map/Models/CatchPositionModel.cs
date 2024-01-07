@@ -6,7 +6,6 @@ namespace Raton.Map.Models
 {
     public class CatchPositionModel
     {
-        public int AnimalTableID { get; set; }
         public string Animal { get; set; }
         public SexEnum Sex { get; set; }
         public SolidColorBrush AColor { get; set; }
@@ -16,7 +15,6 @@ namespace Raton.Map.Models
 
         public CatchPositionModel(AnimalModel animal, PointModel point, CatchModel cat) 
         {
-            AnimalTableID = animal.TableID;
             Animal = animal.ID;
             Sex = animal.Sex;
             Latitude = point.Latitude;

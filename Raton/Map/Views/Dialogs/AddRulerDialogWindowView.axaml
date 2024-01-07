@@ -25,7 +25,7 @@
 		<Button
 				HorizontalAlignment="Right"
 				VerticalAlignment="Top"
-				Classes="DialogCloseButton"
+				Background="IndianRed"
 				Command="{Binding Close}">
 			<PathIcon Data="{DynamicResource dismiss_circle_regular}" />
 		</Button>

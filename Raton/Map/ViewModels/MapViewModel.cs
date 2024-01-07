@@ -71,22 +71,22 @@ namespace Raton.Map.ViewModels
             set => this.RaiseAndSetIfChanged(ref _selectedRuler, value);
         }
 
+        public ReactiveCommand<int, Unit> AnimalCheckedCommand { get; }
+
+        public ReactiveCommand<Unit, Unit> SeriesCheckedCommand { get; }
+
         public ReactiveCommand<Unit, Unit> AddRuler { get; }
         public ReactiveCommand<string, Unit> DeleteRuler { get; }
         #endregion
 
         #region Selection Commands
-        public ReactiveCommand<int, Unit> AnimalCheckedCommand { get; }
-        public ReactiveCommand<string, Unit> SeriesCheckedCommand { get; }
         public ReactiveCommand<Unit, Unit> SelectAllAnimals { get; }
-        public ReactiveCommand<Unit, Unit> DeselectAllAnimals { get; }
+
         public ReactiveCommand<Unit, Unit> SelectAllSeries { get; }
+
+        public ReactiveCommand<Unit, Unit> DeselectAllAnimals { get; }
+
         public ReactiveCommand<Unit, Unit> DeselectAllSeries { get; }
-        public ReactiveCommand<int, Unit> SelectAllAnimalsFromSerieCommand { get; }
-        public ReactiveCommand<int, Unit> DeselectAllAnimalsFromSerieCommand { get; }
-        public ReactiveCommand<Unit, Unit> SelectAllAnimalsFromSelectedPoint { get; }
-        public ReactiveCommand<Unit, Unit> DeselectAllAnimalsFromSelectedPoint { get; }
-        public ReactiveCommand<int, Unit> ChangeSelectionOfAnimalFromPoint { get; }
         #endregion
 
         public ReactiveCommand<int, Unit> ZoomToAnimal { get; }
@@ -142,10 +142,6 @@ namespace Raton.Map.ViewModels
             if (selectedSeries is null || selectedSeries.Count() == 0) return animal => false;
             return animal => selectedSeries.IntersectBy(animal.Series, x => x.Name).Count() > 0;
         }
-        #endregion
-
-        #region Sorting
-        IComparer<MapAnimalModel> _animalSortController;
         #endregion
 
         #region MapModes
@@ -234,33 +230,18 @@ namespace Raton.Map.ViewModels
             #region Animal and Series Lists
 
             _searchAnimal = string.Empty;
-
-            _animalSortController = SortExpressionComparer<MapAnimalModel>
-                .Descending(t => t.IsChecked)
-                .ThenByAscending(t => t.ID.ToLower());
-
             var filterAnimalPredicate = this.WhenAnyValue(x => x.SearchAnimal)
               .DistinctUntilChanged()
               .Select(animalFilter);
 
-            var filterShowSeriesPredicate = this.WhenAnyValue(x => x.ShowAnimalsFromSelectedSeriesOnly)
-              .DistinctUntilChanged()
-              .Select(showAnimalsFromSelectedSeriesOnlyFilter);
-
-            _animals.Connect()
-                .Filter(filterAnimalPredicate)
-                .Filter(filterShowSeriesPredicate)
-                .Sort(_animalSortController)
-                .ObserveOn(RxApp.MainThreadScheduler)
-                .Bind(out _animalsList)
-                .DisposeMany()
-                .Subscribe();
-
             _searchSeries = string.Empty;
-
             var filterSeriesPredicate = this.WhenAnyValue(x => x.SearchSeries)
               .DistinctUntilChanged()
               .Select(seriesFilter);
+
+            var filterShowSeriesPredicate = this.WhenAnyValue(x => x.ShowAnimalsFromSelectedSeriesOnly)
+              .DistinctUntilChanged()
+              .Select(showAnimalsFromSelectedSeriesOnlyFilter);
 
             _series.Connect()
                 .Filter(filterSeriesPredicate)
@@ -274,47 +255,17 @@ namespace Raton.Map.ViewModels
                 .Sort(SortExpressionComparer<CatchPositionModel>.Ascending(t => t.Date))
                 .Bind(out _selectedPointAnimalsList).Subscribe();
 
-
+            _animals.Connect()
+                .Filter(filterAnimalPredicate)
+                .Filter(filterShowSeriesPredicate)
+                .Sort(SortExpressionComparer<MapAnimalModel>.Descending(t => t.IsChecked).ThenByAscending(t => t.ID.ToLower()))
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Bind(out _animalsList)
+                .DisposeMany()
+                .Subscribe();
             #endregion
 
             #region Selection Commands
-            AnimalCheckedCommand = ReactiveCommand.CreateFromTask(async (int animalTableID) =>
-            {
-                var animal = _animals.Lookup(animalTableID).Value;
-
-                if (animal.IsChecked)
-                {
-                    var stringSeries = GetCheckedSeriesNames();
-
-                    if (stringSeries == null || stringSeries.Count == 0)
-                        return;
-
-                    UpdateCheckedAnimalLayer(animal, stringSeries);
-                }
-                else
-                {
-                    ClearSpecificAnimalLayer(animal);
-                }
-            });
-
-            SeriesCheckedCommand = ReactiveCommand.CreateFromTask(async (string seriesName) =>
-            {
-
-                UpdateAnimalListAfterSeriesChanged();
-
-                var animals = _animals.Items.Where(x => x.IsChecked && x.Series.Contains(seriesName));
-
-                if (animals is null || !animals.Any())
-                    return;
-
-                var stringSeries = GetCheckedSeriesNames();
-
-                foreach (var animal in animals)
-                {
-                    UpdateCheckedAnimalLayer(animal, stringSeries);
-                }
-            });
-
             SelectAllAnimals = ReactiveCommand.CreateFromTask(async () =>
             {
                 _animals.Edit(innerCache =>
@@ -329,6 +280,17 @@ namespace Raton.Map.ViewModels
                     return;
 
                 UpdateAllCheckedAnimalsLayers();
+            });
+
+            SelectAllSeries = ReactiveCommand.CreateFromTask(async () =>
+            {
+                _series.Edit(innerCache =>
+                {
+                    foreach (var serie in innerCache.Items)
+                        serie.IsChecked = true;
+                });
+                UpdateAllCheckedAnimalsLayers();
+                UpdateAnimalListAfterSeriesChanged();
             });
 
             DeselectAllAnimals = ReactiveCommand.CreateFromTask(async () =>
@@ -346,18 +308,7 @@ namespace Raton.Map.ViewModels
                         animal.IsChecked = false;
                 });
 
-
-            });
-
-            SelectAllSeries = ReactiveCommand.CreateFromTask(async () =>
-            {
-                _series.Edit(innerCache =>
-                {
-                    foreach (var serie in innerCache.Items)
-                        serie.IsChecked = true;
-                });
-                UpdateAllCheckedAnimalsLayers();
-                UpdateAnimalListAfterSeriesChanged();
+                
             });
 
             DeselectAllSeries = ReactiveCommand.CreateFromTask(async () =>
@@ -369,127 +320,7 @@ namespace Raton.Map.ViewModels
                 });
 
                 UpdateAllCheckedAnimalsLayers();
-
                 UpdateAnimalListAfterSeriesChanged();
-            });
-
-            SelectAllAnimalsFromSerieCommand = ReactiveCommand.CreateFromTask(async (int seriesTableID) =>
-            {
-                var serie = _series.Lookup(seriesTableID).Value;
-
-                var animals = _animals.Items.Where(x => x.Series.Contains(serie.Name));
-
-                if (animals is null || !animals.Any())
-                    return;
-
-                foreach (var animal in animals)
-                {
-                    if (animal.IsChecked)
-                    {
-                        continue;
-                    }
-                    else
-                    {
-                        var stringSeries = GetCheckedSeriesNames();
-                        animal.IsChecked = true;
-                        UpdateCheckedAnimalLayer(animal, stringSeries);
-                    }
-                }
-
-                RefreshAnimals();
-            });
-
-            DeselectAllAnimalsFromSerieCommand = ReactiveCommand.CreateFromTask(async (int seriesTableID) =>
-            {
-                var serie = _series.Lookup(seriesTableID).Value;
-
-                var animals = _animals.Items.Where(x => x.Series.Contains(serie.Name));
-
-                if (animals is null || !animals.Any())
-                    return;
-
-                foreach (var animal in animals)
-                {
-                    if (animal.IsChecked)
-                    {
-                        ClearSpecificAnimalLayer(animal);
-                        animal.IsChecked = false;
-                    }
-                    else
-                    {
-                        continue;
-                    }
-                }
-
-                RefreshAnimals();
-            });
-
-            SelectAllAnimalsFromSelectedPoint = ReactiveCommand.CreateFromTask(async () =>
-            {
-                if (!_selectedPointAnimals.Items.Any())
-                    return;
-
-                foreach (var selectedPointAnimal in _selectedPointAnimals.Items)
-                {
-                    var animal = _animals.Lookup(selectedPointAnimal.AnimalTableID).Value;
-
-                    if (animal.IsChecked)
-                    {
-                        continue;
-                    }
-                    else
-                    {
-                        var stringSeries = GetCheckedSeriesNames();
-                        animal.IsChecked = true;
-                        UpdateCheckedAnimalLayer(animal, stringSeries);
-                    }
-                }
-
-                RefreshAnimals();
-            });
-
-            DeselectAllAnimalsFromSelectedPoint = ReactiveCommand.CreateFromTask(async () =>
-            {
-                if (!_selectedPointAnimals.Items.Any())
-                    return;
-
-                foreach (var selectedPointAnimal in _selectedPointAnimals.Items)
-                {
-                    var animal = _animals.Lookup(selectedPointAnimal.AnimalTableID).Value;
-
-                    if (animal.IsChecked)
-                    {
-                        ClearSpecificAnimalLayer(animal);
-                        animal.IsChecked = false;
-                    }
-                    else
-                    {
-                        continue;
-                    }
-                }
-
-                RefreshAnimals();
-            });
-
-            ChangeSelectionOfAnimalFromPoint = ReactiveCommand.CreateFromTask(async (int animalTableID) =>
-            {
-                var animal = _animals.Lookup(animalTableID).Value;
-
-                animal.IsChecked = !animal.IsChecked;
-
-                if (animal.IsChecked)
-                {
-                    var stringSeries = GetCheckedSeriesNames();
-
-                    if (stringSeries == null || stringSeries.Count == 0)
-                        return;
-
-                    UpdateCheckedAnimalLayer(animal, stringSeries);
-                }
-                else
-                {
-                    ClearSpecificAnimalLayer(animal);
-                }
             });
             #endregion
 
@@ -563,7 +394,31 @@ namespace Raton.Map.ViewModels
 
             #endregion
 
-            
+            AnimalCheckedCommand = ReactiveCommand.CreateFromTask(async (int animalTableID) =>
+            {
+                var animal = _animals.Lookup(animalTableID).Value;
+
+                if (animal.IsChecked)
+                {
+                    var stringSeries = GetCheckedSeriesNames();
+
+                    if (stringSeries == null || stringSeries.Count == 0)
+                        return;
+
+                    UpdateCheckedAnimalLayer(animal, stringSeries);
+                }
+                else 
+                {
+                    ClearSpecificAnimalLayer(animal);
+                }
+                
+            });
+
+            SeriesCheckedCommand = ReactiveCommand.CreateFromTask(async () =>
+            {
+                UpdateAnimalListAfterSeriesChanged();
+                UpdateAllCheckedAnimalsLayers();
+            });
 
             #region Animal Button Commands
             ZoomToAnimal = ReactiveCommand.CreateFromTask(async (int animalTableID) =>
@@ -644,21 +499,19 @@ namespace Raton.Map.ViewModels
             
         }
 
-        private void RefreshAnimals()
+        private Task UpdateAllCheckedAnimalsLayers()
         {
-            _animals.Refresh();
-        }
-
-        private void UpdateAllCheckedAnimalsLayers()
-        {
-            var animalsChecked = _animals.Items.Where(x => x.IsChecked);
-
-            var stringSeries = GetCheckedSeriesNames();
-
-            foreach (var animal in animalsChecked)
+            return Task.Factory.StartNew(() =>
             {
-                UpdateCheckedAnimalLayer(animal, stringSeries);
-            }
+                var animalsChecked = _animals.Items.Where(x => x.IsChecked);
+
+                var stringSeries = GetCheckedSeriesNames();
+
+                foreach (var animal in animalsChecked)
+                {
+                    UpdateCheckedAnimalLayer(animal, stringSeries);
+                }
+            });
         }
 
         private void UpdateCheckedAnimalLayer(MapAnimalModel animal, List<string>? stringSeries)
@@ -711,7 +564,8 @@ namespace Raton.Map.ViewModels
         {
             if (ShowAnimalsFromSelectedSeriesOnly)
             {
-                RefreshAnimals();
+                ShowAnimalsFromSelectedSeriesOnly = false;
+                ShowAnimalsFromSelectedSeriesOnly = true;
             }
         }
 
