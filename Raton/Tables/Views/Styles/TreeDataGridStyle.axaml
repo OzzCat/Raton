@@ -49,6 +49,14 @@
 			</Style>
 		</Style>
 
+		<Style Selector="^ AutoCompleteBox.cellAutoSelector">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="HorizontalAlignment" Value="Stretch"/>
+			<Setter Property="VerticalAlignment" Value="Center"/>
+			<Setter Property="BorderBrush" Value="Transparent"/>
+			<Setter Property="FilterMode" Value="Contains"/>
+		</Style>
+
 		<Style Selector="^ ComboBox.cellComboSelector">
 			<Setter Property="Background" Value="Transparent"/>
 			<Setter Property="HorizontalAlignment" Value="Stretch"/>

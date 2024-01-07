@@ -120,16 +120,19 @@ namespace Raton.Tables.ViewModels
             _animals.Connect()
                 .Sort(SortExpressionComparer<string>.Ascending(x => x))
                 .Bind(out _animalsList)
+                .DisposeMany()
                 .Subscribe();
             
             _points.Connect()
                 .Sort(SortExpressionComparer<string>.Ascending(x => x))
                 .Bind(out _pointsList)
+                .DisposeMany()
                 .Subscribe();
             
             _series.Connect()
                 .Sort(SortExpressionComparer<string>.Ascending(x => x))
                 .Bind(out _seriesList)
+                .DisposeMany()
                 .Subscribe();
 
             #region Filtering

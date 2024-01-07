@@ -22,24 +22,24 @@
 		</TreeDataGrid.DataTemplates>
 		<TreeDataGrid.Resources>
 			<DataTemplate x:Key="AnimalCell" DataType="m:TableCatchModel">
-				<ComboBox
-					Classes="cellComboSelector"
+				<AutoCompleteBox
+					Classes="cellAutoSelector"
 					ItemsSource="{Binding #CatchTable.((vm:CatchTableViewModel)DataContext).AnimalsList}"
 					SelectedItem="{Binding Animal}"/>
 			</DataTemplate>
 			<DataTemplate x:Key="PointCell" DataType="m:TableCatchModel">
-				<ComboBox
-					Classes="cellComboSelector"
+				<AutoCompleteBox
+					Classes="cellAutoSelector"
 					ItemsSource="{Binding #CatchTable.((vm:CatchTableViewModel)DataContext).PointsList}"
 					SelectedItem="{Binding Point}">
-				</ComboBox>
+				</AutoCompleteBox>
 			</DataTemplate>
 			<DataTemplate x:Key="SeriesCell" DataType="m:TableCatchModel">
-				<ComboBox
-						Classes="cellComboSelector"
+				<AutoCompleteBox
+						Classes="cellAutoSelector"
 						ItemsSource="{Binding #CatchTable.((vm:CatchTableViewModel)DataContext).SeriesList}"
 						SelectedItem="{Binding Series}">
-				</ComboBox>
+				</AutoCompleteBox>
 			</DataTemplate>
 			<DataTemplate x:Key="DateCell" DataType="m:TableCatchModel">
 				<CalendarDatePicker SelectedDate="{Binding Date}"
