@@ -40,14 +40,23 @@
 				</Button>
 			</Grid>
 
-			<CheckBox
+			<Grid 
 				Grid.Row="1"
-				VerticalAlignment="Center"
-				HorizontalAlignment="Center"
-				IsChecked="{Binding ShowAnimalsFromSelectedSeriesOnly}"
+				ColumnDefinitions="*, Auto"
 				Margin="0, 0, 0, 5">
-				Show only from selected series
-			</CheckBox>
+				<CheckBox
+					Grid.Column="0"
+					HorizontalAlignment="Center"
+					ToolTip.Tip="Show only animals from selected series"
+					IsChecked="{Binding ShowAnimalsFromSelectedSeriesOnly}"
+					Content="Filter By Series"/>
+				<Button
+					Grid.Column="1"
+					ToolTip.Tip="Refresh animals list"
+					Command="{Binding RefreshAnimalListCommand}">
+					<PathIcon Data="{DynamicResource arrow_sync_circle_regular}" />
+				</Button>
+			</Grid>
 
 			<ScrollViewer
 				Grid.Row="2"
@@ -232,7 +241,7 @@
 			
 		</Grid>
 
-		<Grid RowDefinitions="Auto, *, Auto" Grid.Column="2" Margin="0, 5, 5, 5">
+		<Grid RowDefinitions="Auto, 2*, *" Grid.Column="2" Margin="0, 5, 5, 5">
 
 			<Grid Grid.Row="0" 
 				  ColumnDefinitions="*, Auto, Auto"
@@ -422,6 +431,7 @@
 										Grid.Column="3"
 										ToolTip.Tip="Change selection of this animal"
 										Background="Transparent"
+										Margin="0, 0, 15, 0"
 										Command="{Binding $parent[ListBox].((vm:MapViewModel)DataContext).ChangeSelectionOfAnimalFromPoint}"
 											CommandParameter="{Binding AnimalTableID}">
 										<PathIcon 

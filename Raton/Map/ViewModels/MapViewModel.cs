@@ -90,6 +90,7 @@ namespace Raton.Map.ViewModels
         #endregion
 
         public ReactiveCommand<int, Unit> ZoomToAnimal { get; }
+        public ReactiveCommand<Unit, Unit> RefreshAnimalListCommand { get; }
 
         public ReactiveCommand<int, Unit> DrawAnimalRouteCommand { get; }
 
@@ -396,7 +397,7 @@ namespace Raton.Map.ViewModels
                     }
                 }
 
-                RefreshAnimals();
+                RefreshAnimalList();
             });
 
             DeselectAllAnimalsFromSerieCommand = ReactiveCommand.CreateFromTask(async (int seriesTableID) =>
@@ -421,7 +422,7 @@ namespace Raton.Map.ViewModels
                     }
                 }
 
-                RefreshAnimals();
+                RefreshAnimalList();
             });
 
             SelectAllAnimalsFromSelectedPoint = ReactiveCommand.CreateFromTask(async () =>
@@ -445,7 +446,7 @@ namespace Raton.Map.ViewModels
                     }
                 }
 
-                RefreshAnimals();
+                RefreshAnimalList();
             });
 
             DeselectAllAnimalsFromSelectedPoint = ReactiveCommand.CreateFromTask(async () =>
@@ -468,7 +469,7 @@ namespace Raton.Map.ViewModels
                     }
                 }
 
-                RefreshAnimals();
+                RefreshAnimalList();
             });
 
             ChangeSelectionOfAnimalFromPoint = ReactiveCommand.CreateFromTask(async (int animalTableID) =>
@@ -563,7 +564,11 @@ namespace Raton.Map.ViewModels
 
             #endregion
 
-            
+            RefreshAnimalListCommand = ReactiveCommand.CreateFromTask(
+               async () =>
+               {
+                   RefreshAnimalList(); 
+               });
 
             #region Animal Button Commands
             ZoomToAnimal = ReactiveCommand.CreateFromTask(async (int animalTableID) =>
@@ -644,7 +649,7 @@ namespace Raton.Map.ViewModels
             
         }
 
-        private void RefreshAnimals()
+        private void RefreshAnimalList()
         {
             _animals.Refresh();
         }
@@ -711,7 +716,7 @@ namespace Raton.Map.ViewModels
         {
             if (ShowAnimalsFromSelectedSeriesOnly)
             {
-                RefreshAnimals();
+                RefreshAnimalList();
             }
         }
 
