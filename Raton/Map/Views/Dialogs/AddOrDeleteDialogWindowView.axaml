@@ -17,7 +17,10 @@
 			<Button Content="Close"
 				HorizontalAlignment="Right"
 				Classes="DialogCloseButton"
-				Command="{Binding Close}"/>
+				Command="{Binding Close}">
+				<PathIcon
+					Data="{DynamicResource dismiss_circle_regular}"/>
+			</Button>
 		</Border>
 		<TextBlock
 			Grid.Row="1"
@@ -28,19 +31,21 @@
 			TextWrapping="Wrap"
 			MaxWidth="200"/>
 		<Border Grid.Row="2"
-				Margin="10"
-				HorizontalAlignment="Stretch">
+				Margin="10">
 			<Grid
-			ColumnDefinitions="*, *"
-			HorizontalAlignment="Stretch">
-				<Button Content="Add"
+			ColumnDefinitions="*, *">
+				<Button 
+					Grid.Column="0"
+					Content="Add"
 					HorizontalAlignment="Left"
 					Classes="DialogConfirmButton"
 					Command="{Binding Add}"/>
-				<Button Content="Delete"
-						Classes="DialogDeleteButton"
-						HorizontalAlignment="Right"
-						Command="{Binding Delete}"/>
+				<Button 
+					Grid.Column="2"
+					Content="Delete"
+					Classes="DialogDeleteButton"
+					HorizontalAlignment="Right"
+					Command="{Binding Delete}"/>
 			</Grid>
 		</Border>
 	</Grid>
