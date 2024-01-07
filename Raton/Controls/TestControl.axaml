@@ -1,0 +1,36 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="using:Raton.Controls">
+  <Design.PreviewWith>
+    <controls:TestControl />
+  </Design.PreviewWith>
+
+  <Style Selector="controls|TestControl">
+    <!-- Set Defaults -->
+    <Setter Property="Template">
+      <ControlTemplate>
+		  <CalendarDatePicker
+			  IsEnabled="False"
+			  SelectedDate="{TemplateBinding IsCapable}">
+			  <CalendarDatePicker.Styles>
+				  <Style Selector=":disabled">
+					  <Style Selector="^ /template/ Border#Background">
+						  <Setter Property="Background" Value="{x:Null}"/>
+						  <Setter Property="BorderThickness" Value="0"/>
+					  </Style>
+					  <Style Selector="^ /template/ Button#PART_Button">
+						  <Setter Property="IsVisible" Value="False" />
+					  </Style>
+					  <Style Selector="^ /template/ TextBox#PART_TextBox:disabled">
+						  <Style Selector="^ TextPresenter#PART_TextPresenter:disabled">
+							  <Setter Property="TextElement.FontWeight" Value="Bold" />
+							  <Setter Property="TextElement.Foreground" Value="Red" />
+						  </Style>
+					  </Style>
+				  </Style>
+			  </CalendarDatePicker.Styles>
+		  </CalendarDatePicker>
+	  </ControlTemplate>
+    </Setter>
+  </Style>
+</Styles>

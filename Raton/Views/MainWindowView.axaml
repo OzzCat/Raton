@@ -1,0 +1,78 @@
+<Window xmlns="https://github.com/avaloniaui"
+		xmlns:rxui="clr-namespace:Avalonia.ReactiveUI;assembly=Avalonia.ReactiveUI"
+		xmlns:app="clr-namespace:Raton"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Raton.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:views="clr-namespace:Raton.Views"
+		WindowState="Maximized"
+        x:Class="Raton.Views.MainWindowView"
+        x:DataType="vm:MainWindowViewModel"
+        Icon="/Assets/embvole.png"
+        Title="Raton">
+
+	<Grid RowDefinitions="Auto, *">
+		<Border
+			BorderThickness="0, 0, 0, 2"
+			BorderBrush="{DynamicResource DarkGreenBrush}"/>
+		<Grid ColumnDefinitions="Auto, Auto, *, Auto, Auto">
+			<Button
+					Grid.Column="0"
+					VerticalAlignment="Center"
+					HorizontalAlignment="Center"
+					Margin="5"
+					ToolTip.Tip="Open Map"
+					Command="{Binding GoToMap}">
+				<PathIcon Data="{DynamicResource globe_regular}" />
+			</Button>
+			<Menu Grid.Column="1">
+				<MenuItem Header="Tables">
+					<MenuItem
+						Header="Animals"
+						Command="{Binding GoToAnimalTable}"/>
+					<MenuItem
+						Header="Points"
+						Command="{Binding GoToPointTable}"/>
+					<MenuItem
+						Header="Catches"
+						Command="{Binding GoToCatchTable}"/>
+					<MenuItem
+						Header="Series"
+						Command="{Binding GoToSeriesTable}"/>
+				</MenuItem>
+			</Menu>
+			<Button
+					Grid.Column="3"
+					VerticalAlignment="Center"
+					HorizontalAlignment="Center"
+					Margin="5"
+					ToolTip.Tip="Import data from Excel"
+					Command="{Binding OpenFileCommand}">
+				<PathIcon Data="{DynamicResource table_add_regular}" />
+			</Button>
+			<Button
+					Grid.Column="4"
+					VerticalAlignment="Center"
+					HorizontalAlignment="Center"
+					Margin="5"
+					ToolTip.Tip="Drop Program Database"
+					Command="{Binding DropDbCommand}">
+				<PathIcon Data="{DynamicResource table_delete_regular}" />
+			</Button>
+		</Grid>
+		
+		<rxui:RoutedViewHost Grid.Row="1" Router="{Binding Router}">
+			<rxui:RoutedViewHost.DefaultContent>
+				<TextBlock Text="Default content"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center" />
+			</rxui:RoutedViewHost.DefaultContent>
+			<rxui:RoutedViewHost.ViewLocator>
+				<!-- See AppViewLocator.cs section below -->
+				<app:AppViewLocator />
+			</rxui:RoutedViewHost.ViewLocator>
+		</rxui:RoutedViewHost>
+	</Grid>
+
+</Window>

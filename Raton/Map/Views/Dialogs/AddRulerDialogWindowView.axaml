@@ -1,0 +1,66 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="300" d:DesignHeight="300"
+		xmlns:vm="using:Raton.Map.ViewModels.Dialogs"
+		Width="300"
+		Height="300"
+		WindowStartupLocation="CenterOwner"
+        x:Class="Raton.Map.Views.Dialogs.AddRulerDialogWindowView"
+        Title="Add New Ruler"
+		SystemDecorations="None"
+		x:DataType="vm:AddRulerDialogWindowViewModel"
+		>
+	<Panel>
+		<Button Content="Add"
+				VerticalAlignment="Bottom"
+				HorizontalAlignment="Left"
+				Background="Green"
+				Margin="15, 15, 15, 15"
+				IsEnabled="{Binding EnableSaving}"
+				ToolTip.Tip="You must enter the name first"
+				Command="{Binding Add}">
+		</Button>
+		<Button
+				HorizontalAlignment="Right"
+				VerticalAlignment="Top"
+				Background="IndianRed"
+				Command="{Binding Close}">
+			<PathIcon Data="{DynamicResource dismiss_circle_regular}" />
+		</Button>
+		<Grid RowDefinitions="Auto, *"
+			  ColumnDefinitions="Auto, Auto"
+			  VerticalAlignment="Center"
+			  HorizontalAlignment="Center">
+			<TextBlock 
+				Grid.Row="0" 
+				Grid.Column="0"
+				FontSize="16"
+				Margin="10"
+				VerticalAlignment="Center">
+				Enter name:
+			</TextBlock>
+			<TextBox
+				Text="{Binding Name}"
+				Grid.Row="0"
+				Grid.Column="1"
+				Margin="10"
+				Watermark="*"
+				Name="NameTextBox"/>
+			<TextBlock 
+				Grid.Row="1" 
+				Grid.Column="0"
+				FontSize="16"
+				Margin="10"
+				VerticalAlignment="Center">
+				Pick color:
+			</TextBlock>
+			<ColorPicker 
+				Color="{Binding SelectedColor}"
+				Grid.Row="1"
+				Grid.Column="1"
+				Margin="10"/>
+		</Grid>
+	</Panel>
+</Window>

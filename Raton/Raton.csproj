@@ -1,0 +1,57 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <AvaloniaResource Include="Assets\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Assets\embvole.png" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="11.0.6" />
+    <PackageReference Include="Avalonia.Controls.ColorPicker" Version="11.0.6" />
+    <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.0.6" />
+    <PackageReference Include="Avalonia.Controls.TreeDataGrid" Version="11.0.2" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.0.6" />
+    <PackageReference Include="Avalonia.ReactiveUI" Version="11.0.6" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.0.6" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.0.6" />
+    <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
+    <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.0.6" />
+    <PackageReference Include="BruTile.MbTiles" Version="5.0.6" />
+    <PackageReference Include="EPPlus" Version="4.5.3.3" />
+    <PackageReference Include="Mapsui.Avalonia" Version="4.1.2" />
+    <PackageReference Include="MessageBox.Avalonia" Version="3.1.5.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.14" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.14">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="sqlite-net-pcl" Version="1.8.116" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <Compile Update="Views\MainWindowView.axaml.cs">
+      <DependentUpon>MainWindowView.axaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <Folder Include="Models\SettingsModels\" />
+    <Folder Include="Tables\ViewModels\Dialogs\" />
+    <Folder Include="Tables\ViewModels\Templates\" />
+    <Folder Include="Tables\Views\Dialogs\" />
+  </ItemGroup>
+</Project>

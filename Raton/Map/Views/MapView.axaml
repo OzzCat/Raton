@@ -1,0 +1,380 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:Raton.Map.ViewModels"
+			 mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+             x:Class="Raton.Map.Views.MapView"
+			 x:DataType="vm:MapViewModel"
+			 >
+	<Grid ColumnDefinitions="*, 3*, *">
+		<Grid Grid.Column="0" RowDefinitions="Auto, Auto, *" Margin="5, 5, 0, 5">
+			<Grid 
+				ColumnDefinitions="*, Auto, Auto"
+				Grid.Row="0"
+				VerticalAlignment="Stretch"
+				HorizontalAlignment="Stretch"
+				Margin="0, 0, 0, 5">
+				<TextBox
+					Grid.Row="0"
+					FontSize="14"
+					HorizontalAlignment="Stretch"
+					VerticalAlignment="Center"
+					Text="{Binding SearchAnimal}"
+					Watermark="Animal ID"/>
+				<Button
+					Grid.Column="1"
+					VerticalAlignment="Center"
+					HorizontalAlignment="Center"
+					ToolTip.Tip="Select all animals"
+					Margin="5, 0, 5, 0"
+					Command="{Binding SelectAllAnimals}">
+					<PathIcon Data="{DynamicResource checkmark_circle_regular}" />
+				</Button>
+				<Button
+					Grid.Column="2"
+					VerticalAlignment="Center"
+					HorizontalAlignment="Center"
+					ToolTip.Tip="Clears the selection on all animals"
+					Command="{Binding DeselectAllAnimals}">
+					<PathIcon Data="{DynamicResource dismiss_circle_regular}" />
+				</Button>
+			</Grid>
+
+			<CheckBox
+				Grid.Row="1"
+				VerticalAlignment="Center"
+				HorizontalAlignment="Center"
+				IsChecked="{Binding ShowAnimalsFromSelectedSeriesOnly}"
+				Margin="0, 0, 0, 5">
+				Show only from selected series
+			</CheckBox>
+
+			<ScrollViewer
+				Grid.Row="2">
+				<ItemsControl
+					ItemsSource="{Binding AnimalsList}">
+					<ItemsControl.ItemTemplate>
+						<DataTemplate>
+							<Grid ColumnDefinitions="*, 3*, *, *, *">
+								<CheckBox
+									Grid.Column="0"
+									VerticalAlignment="Center"
+									HorizontalAlignment="Center"
+									Command="{Binding $parent[ItemsControl].((vm:MapViewModel)DataContext).AnimalCheckedCommand}"
+									CommandParameter="{Binding TableID}"
+									IsChecked="{Binding IsChecked}"/>
+								<TextBlock
+									Grid.Column="1"
+									VerticalAlignment="Center"
+									HorizontalAlignment="Center"
+									Text="{Binding ID}"/>
+								<TextBlock
+									Grid.Column="2"
+									VerticalAlignment="Center"
+									HorizontalAlignment="Center"
+									Text="{Binding Sex}"/>
+								<Button
+									Grid.Column="3"
+									VerticalAlignment="Center"
+									HorizontalAlignment="Center"
+									ToolTip.Tip="Draw a route of this animal"
+									Background="{x:Null}"
+									IsVisible="{Binding IsChecked}"
+									Command="{Binding $parent[ItemsControl].((vm:MapViewModel)DataContext).DrawAnimalRouteCommand}"
+									CommandParameter="{Binding TableID}">
+									<PathIcon Data="{DynamicResource ruler_regular}" />
+								</Button>
+								<Button
+									Grid.Column="4"
+									VerticalAlignment="Center"
+									HorizontalAlignment="Center"
+									ToolTip.Tip="Zoom map to this animal"
+									Background="{x:Null}"
+									IsVisible="{Binding IsChecked}"
+									Command="{Binding $parent[ItemsControl].((vm:MapViewModel)DataContext).ZoomToAnimal}"
+									CommandParameter="{Binding TableID}">
+									<PathIcon Data="{DynamicResource zoom_in_regular}" />
+								</Button>
+							</Grid>
+						</DataTemplate>
+					</ItemsControl.ItemTemplate>
+				</ItemsControl>
+			</ScrollViewer>
+		</Grid>
+
+		<Grid
+			RowDefinitions="*, 6*"
+			Margin="5, 0, 5, 5"
+			Grid.Column="1">
+			<Border
+					BorderThickness="2, 0, 2, 2"
+					Grid.Row="0"
+					BorderBrush="{DynamicResource DarkGreenBrush}">
+				
+				<Grid ColumnDefinitions="Auto, *, Auto">
+					<CheckBox IsChecked="{Binding RulerMode}"
+						  Grid.Column="0"
+						  VerticalAlignment="Center"
+						  HorizontalAlignment="Center"
+						  Margin="10"
+						  ToolTip.Tip="Enable ruler mode">
+						<PathIcon Data="{DynamicResource ruler_regular}" />
+					</CheckBox>
+					<ListBox
+						ItemsSource="{Binding RulersList}"
+						SelectedItem="{Binding SelectedRuler}"
+						SelectionMode="Single"
+						Margin="0, 5, 0, 5"
+						Grid.Column="1"
+						ScrollViewer.HorizontalScrollBarVisibility="Visible"
+						ScrollViewer.AllowAutoHide="True">
+						<ListBox.ItemsPanel>
+							<ItemsPanelTemplate>
+								<StackPanel Orientation="Horizontal"/>
+							</ItemsPanelTemplate>
+						</ListBox.ItemsPanel>
+						<ListBox.Styles>
+							<Style Selector="ListBoxItem">
+								<Setter Property="Margin" Value="0"/>
+								<Setter Property="Padding" Value="0"/>
+							</Style>
+							<Style Selector="ListBoxItem:selected /template/ ContentPresenter">
+								<Setter Property="BorderThickness" Value="2"/>
+								<Setter Property="BorderBrush" Value="{DynamicResource DarkGreenBrush}"/>
+							</Style>
+						</ListBox.Styles>
+						<ListBox.ItemTemplate>
+							<DataTemplate>
+								<Grid Background="{Binding Color}"
+									  RowDefinitions="Auto, Auto"
+									  ColumnDefinitions="*, *"
+									  VerticalAlignment="Center"
+									  HorizontalAlignment="Center">
+									<TextBlock
+										Grid.Row="0"
+										Grid.ColumnSpan="2"
+										VerticalAlignment="Center"
+										HorizontalAlignment="Center"
+										Text="{Binding Name}"
+										Margin="3, 3, 3, 3"/>
+									<ToggleButton
+										Grid.Row="1"
+										Grid.Column="0"
+										Background="{x:Null}"
+										MinHeight="30"
+										Height="30"
+										MinWidth="30"
+										Width="30"
+										IsChecked="{Binding IsChecked}">
+										<ToggleButton.Styles>
+											<Style Selector=":unchecked">
+												<Style Selector="^ PathIcon#EyeIcon">
+													<Setter Property="Data" Value="{DynamicResource eye_hide_regular}" />
+													<Setter Property="ToolTip.Tip" Value="Show Ruler On Map" />
+												</Style>
+											</Style>
+											<Style Selector=":checked">
+												<Style Selector="^ /template/ ContentPresenter#PART_ContentPresenter">
+													<Setter Property="Background" Value="{x:Null}" />
+												</Style>
+											</Style>
+											<Style Selector=":pointerover">
+												<Style Selector="^ /template/ ContentPresenter#PART_ContentPresenter">
+													<Setter Property="Background" Value="{DynamicResource ToggleButtonBackgroundPointerOver}" />
+												</Style>
+											</Style>
+										</ToggleButton.Styles>
+										<PathIcon
+													Name="EyeIcon"
+													ToolTip.Tip="Hide Ruler From Map"
+													Data="{DynamicResource eye_show_regular}" />
+									</ToggleButton>
+									<Button
+										Grid.Row="1"
+										Grid.Column="1"
+										MinHeight="30"
+										Height="30"
+										MinWidth="30"
+										Width="30"
+										ToolTip.Tip="Delete this ruler"
+										Background="{x:Null}"
+										Command="{Binding $parent[ListBox].((vm:MapViewModel)DataContext).DeleteRuler}"
+										CommandParameter="{Binding Name}">
+										<PathIcon Data="{DynamicResource dismiss_regular}" />
+									</Button>
+								</Grid>
+							</DataTemplate>
+						</ListBox.ItemTemplate>
+					</ListBox>
+					<Button
+							  Grid.Column="2"
+							  VerticalAlignment="Center"
+							  HorizontalAlignment="Left"
+							  ToolTip.Tip="Add a new ruler"
+							  Background="{x:Null}"
+							  Command="{Binding AddRuler}">
+						<PathIcon Data="{DynamicResource add_regular}" />
+					</Button>
+				</Grid>
+				
+			</Border>
+			
+
+			<ContentControl
+				Grid.Row="1"
+				Margin="0, 5, 0, 0"
+				Content="{Binding CurrentMapControl}">
+			</ContentControl>
+			
+		</Grid>
+
+		<Grid RowDefinitions="Auto, *, Auto" Grid.Column="2" Margin="0, 5, 5, 5">
+
+			<Grid Grid.Row="0" 
+				  ColumnDefinitions="*, Auto, Auto"
+				  VerticalAlignment="Stretch"
+				  HorizontalAlignment="Stretch"
+				  Margin="0, 0, 0, 5">
+				<TextBlock 
+					Grid.Column="0"
+					HorizontalAlignment="Center"
+					VerticalAlignment="Center"
+					FontSize="14"
+					Text="Map"/>
+				<Button 
+					Grid.Column="1"
+					VerticalAlignment="Center"
+					HorizontalAlignment="Center"
+					Margin="5, 0, 5, 0"
+					ToolTip.Tip="Use local map"
+					Command="{Binding OpenLocalMap}">
+					<PathIcon Data="{DynamicResource map_regular}" />
+				</Button>
+				<Button 
+					Grid.Column="2"
+					VerticalAlignment="Center"
+					HorizontalAlignment="Center"
+					ToolTip.Tip="Use OpenStreetMap"
+					Command="{Binding OpenOSM}">
+					<PathIcon Data="{DynamicResource globe_regular}" />
+				</Button>
+			</Grid>
+
+			<Grid Grid.Row="1" RowDefinitions="Auto, *" Margin="0, 0, 0, 5">
+				
+				<Grid ColumnDefinitions="*, Auto, Auto"
+					  Grid.Row="0"
+					  VerticalAlignment="Stretch"
+					  HorizontalAlignment="Stretch"
+					  Margin="0, 0, 0, 5">
+					<TextBox
+						Grid.Row="0"
+						FontSize="14"
+						HorizontalAlignment="Stretch"
+						VerticalAlignment="Center"
+						Text="{Binding SearchSeries}"
+						Watermark="Series name"/>
+					<Button
+						Grid.Column="1"
+						VerticalAlignment="Center"
+						HorizontalAlignment="Center"
+						ToolTip.Tip="Select all series"
+						Margin="5, 0, 5, 0"
+						Command="{Binding SelectAllSeries}">
+						<PathIcon Data="{DynamicResource checkmark_circle_regular}" />
+					</Button>
+					<Button
+						Grid.Column="2"
+						VerticalAlignment="Center"
+						HorizontalAlignment="Center"
+						ToolTip.Tip="Clears the selection on all series"
+						Command="{Binding DeselectAllSeries}">
+						<PathIcon Data="{DynamicResource dismiss_circle_regular}" />
+					</Button>
+				</Grid>
+				<ScrollViewer
+					Grid.Row="1">
+					<ItemsControl
+						ItemsSource="{Binding SeriesList}"
+						Grid.Row="1">
+						<ItemsControl.ItemTemplate>
+							<DataTemplate>
+								<Grid 
+									  ColumnDefinitions="Auto, *">
+									<CheckBox
+										Grid.Column="0"
+										Margin="5, 0, 0, 0"
+										VerticalAlignment="Center"
+										HorizontalAlignment="Center"
+										Command="{Binding $parent[ItemsControl].((vm:MapViewModel)DataContext).SeriesCheckedCommand}"
+										IsChecked="{Binding IsChecked}"/>
+									<TextBlock
+											Grid.Column="1"
+											VerticalAlignment="Center"
+											HorizontalAlignment="Center"
+											Text="{Binding Name}"/>
+									<Grid.Background>
+										<SolidColorBrush Color="{Binding ItemColor}"/>
+									</Grid.Background>
+								</Grid>
+							</DataTemplate>
+						</ItemsControl.ItemTemplate>
+					</ItemsControl>
+				</ScrollViewer>
+			</Grid>
+
+			<Grid Grid.Row="2" RowDefinitions="Auto, Auto, *">
+				<TextBlock
+				Grid.Row="0"
+				HorizontalAlignment="Center"
+				Text="Animals at selected point"
+				Margin="0, 5, 0, 5" />
+				<TextBlock
+					Grid.Row="1"
+					HorizontalAlignment="Center"
+					Text="{Binding SelectedPoint}"
+					Margin="0, 5, 0, 5" />
+				<ListBox
+						ItemsSource="{Binding SelectedPointAnimalsList}"
+						Grid.Row="2"
+						SelectionMode="Toggle"
+					>
+					<ListBox.Styles>
+						<Style Selector="ListBoxItem">
+							<Setter Property="Margin" Value="0"/>
+							<Setter Property="Padding" Value="0"/>
+						</Style>
+					</ListBox.Styles>
+					<ListBox.ItemTemplate>
+						<DataTemplate>
+							<Border Background="{Binding AColor}" BorderBrush="Black" BorderThickness="1">
+								<Grid ColumnDefinitions="2*, *, 4*">
+									<TextBlock
+										Grid.Column="0"
+										FontSize="10"
+										VerticalAlignment="Center"
+										HorizontalAlignment="Center"
+										Text="{Binding Animal}"/>
+									<TextBlock
+										Grid.Column="1"
+										FontSize="10"
+										VerticalAlignment="Center"
+										HorizontalAlignment="Center"
+										Text="{Binding Sex}"/>
+									<TextBlock
+										Grid.Column="2"
+										VerticalAlignment="Center"
+										HorizontalAlignment="Center"
+										FontSize="10"
+										Text="{Binding Date}"/>
+								</Grid>
+							</Border>
+						</DataTemplate>
+					</ListBox.ItemTemplate>
+				</ListBox>
+			</Grid>
+		</Grid>
+	</Grid>
+	
+</UserControl>

@@ -1,0 +1,57 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:vm="using:Raton.Tables.ViewModels"
+			 xmlns:m="using:Raton.Tables.Models"
+			 xmlns:templates="using:Raton.Tables.Templates.Views"
+			 xmlns:templatesvm="using:Raton.Tables.Templates.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="Raton.Tables.Views.PointTableView"
+			 x:DataType="vm:PointTableViewModel">
+	<TreeDataGrid Grid.Row="1"
+					  Source="{Binding ItemsTree}"
+					  Name="PointTable">
+		<TreeDataGrid.DataTemplates>
+			<DataTemplate DataType="templatesvm:CustomHeader">
+				<templates:CustomHeader/>
+			</DataTemplate>
+			<DataTemplate DataType="vm:PointTableViewModel">
+				<templates:ButtonHeaderTemplate />
+			</DataTemplate>
+		</TreeDataGrid.DataTemplates>
+		<TreeDataGrid.Resources>
+			<DataTemplate x:Key="EditCell" DataType="m:TablePointModel">
+				<Grid ColumnDefinitions="*, *, *">
+					<Button
+						Grid.Column="0"
+						Classes="edit"
+						IsEnabled="{Binding IsDirty}"
+						Command="{Binding #PointTable.((vm:PointTableViewModel)DataContext).SaveItemChangesCommand}"
+						CommandParameter="{Binding TableID}">
+						<PathIcon
+							Name="EditCellSaveIcon"
+							Data="{DynamicResource save_regular}" />
+					</Button>
+					<Button
+						Grid.Column="1"
+						Classes="edit"
+						IsEnabled="{Binding IsDirty}"
+						Command="{Binding #PointTable.((vm:PointTableViewModel)DataContext).DiscardItemChangesCommand}"
+						CommandParameter="{Binding TableID}">
+						<PathIcon
+							Name="DiscardChangesIcon"
+							Data="{DynamicResource dismiss_regular}" />
+					</Button>
+					<Button
+						Grid.Column="2"
+						Command="{Binding #PointTable.((vm:PointTableViewModel)DataContext).DeleteItemCommand}"
+						CommandParameter="{Binding TableID}">
+						<PathIcon Data="{DynamicResource delete_regular}" />
+					</Button>
+				</Grid>
+			</DataTemplate>
+		</TreeDataGrid.Resources>
+	</TreeDataGrid>
+
+</UserControl>

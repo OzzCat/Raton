@@ -1,0 +1,43 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+		xmlns:vm="using:Raton.Map.ViewModels.Dialogs"
+        x:Class="Raton.Views.Dialogs.AddOrDeleteDialogWindowView"
+		Width="300"
+		Height="150"
+		WindowStartupLocation="CenterOwner"
+        Title="AddOrDeleteDialogWindowView"
+		x:DataType="vm:AddOrDeleteDialogWindowViewModel"
+		SystemDecorations="None">
+
+	<Panel>
+		<Button Content="Add"
+				VerticalAlignment="Bottom"
+				HorizontalAlignment="Left"
+				Background="Green"
+				Margin="15, 15, 15, 15"
+				Command="{Binding Add}"/>
+		<Button Content="Delete"
+				Background="Orange"
+				Margin="15, 15, 15, 15"
+				HorizontalAlignment="Right"
+				VerticalAlignment="Bottom"
+				Command="{Binding Delete}"/>
+		<Button 
+				HorizontalAlignment="Right"
+				VerticalAlignment="Top"
+				Background="IndianRed"
+				Command="{Binding Close}">
+			<PathIcon Data="{DynamicResource dismiss_circle_regular}" />
+		</Button>
+		<TextBlock 
+			Text="Press add to add point again, delete to remove it or close to do nothing"
+			VerticalAlignment="Center"
+			HorizontalAlignment="Center"
+			TextAlignment="Center"
+			TextWrapping="Wrap"
+			MaxWidth="200"/>
+	</Panel>
+	
+</Window>

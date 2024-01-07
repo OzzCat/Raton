@@ -1,0 +1,60 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="using:Raton.Tables.Templates.Views">
+  <Design.PreviewWith>
+    <controls:ButtonHeaderTemplate />
+  </Design.PreviewWith>
+
+  <Style Selector="controls|ButtonHeaderTemplate">
+    <!-- Set Defaults -->
+    <Setter Property="Template">
+      <ControlTemplate>
+		  <Grid 
+			  ColumnDefinitions="Auto, Auto, Auto"
+			  HorizontalAlignment="Right">
+			  <Button
+				  Grid.Column="0"
+				  HorizontalAlignment="Stretch"
+				  Margin="20, 5, 0, 5"
+				  Background="Transparent"
+				  ToolTip.Tip="Save all changes"
+				  Command="{TemplateBinding SaveChangesCommand}">
+				  <PathIcon
+					  Foreground="White"
+					  Name="SaveAllIcon"
+					  Width="30"
+					  Height="30"
+					  Data="{DynamicResource checkmark_circle_regular}"/>
+			  </Button>
+			  <Button
+				  Grid.Column="1"
+				  HorizontalAlignment="Stretch"
+				  Margin="0, 5, 0, 5"
+				  Background="Transparent"
+				  ToolTip.Tip="Discard all changes"
+				  Command="{TemplateBinding DiscardChangesCommand}">
+				  <PathIcon
+					  Foreground="White"
+					  Name="DiscardAllIcon"
+					  Width="30"
+					  Height="30"
+					  Data="{DynamicResource dismiss_circle_regular}"/>
+			  </Button>
+			  <Button
+				  Grid.Column="2"
+				  Margin="0, 5, 0, 5"
+				  Background="Transparent"
+				  ToolTip.Tip="Add new animal"
+				  Command="{TemplateBinding AddItemTemplateCommand}">
+				  <PathIcon
+					  Foreground="White"
+					  Name="AddIcon"
+					  Width="30"
+					  Height="30"
+					  Data="{DynamicResource add_circle_regular}"/>
+			  </Button>
+		  </Grid>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+</Styles>

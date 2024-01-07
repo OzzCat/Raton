@@ -1,0 +1,40 @@
+﻿using Microsoft.EntityFrameworkCore;
+using Raton.Models.DbModels.ServiceInterfaces;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using static Raton.Models.DbModels.Enums.SexEnumClass;
+
+namespace Raton.Models.DbModels
+{
+    [Table("AnimalTable")]
+    [Index(nameof(ID), IsUnique = true)]
+    public class AnimalModel : ICatchMasterModel, IIteratedModel, IHasStringID
+    {
+        [Key]
+        public int TableID { get; set; }
+        public string ID { get; set; }
+        public SexEnum Sex { get; set; }
+        public string? Comment { get; set; }
+
+        public List<CatchModel> Catches { get; set; } = new();
+
+        public override bool Equals(object? obj)
+        {
+            if (obj == null)
+            {
+                return false;
+            }
+            if (obj is not AnimalModel)
+            {
+                return false;
+            }
+            return this.ID == ((AnimalModel)obj).ID;
+        }
+
+        public override int GetHashCode()
+        {
+            return ID.GetHashCode();
+        }
+    }
+}

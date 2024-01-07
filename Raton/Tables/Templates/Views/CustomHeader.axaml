@@ -1,0 +1,35 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:vm="using:Raton.Tables.Templates.ViewModels"
+        xmlns:controls="using:Raton.Tables.Templates.Views"
+		x:DataType="vm:CustomHeader">
+  <Design.PreviewWith>
+    <controls:CustomHeader />
+  </Design.PreviewWith>
+
+  <Style Selector="controls|CustomHeader">
+    <!-- Set Defaults -->
+    <Setter Property="Template">
+      <ControlTemplate>
+		  <StackPanel 
+			  HorizontalAlignment="Stretch">
+			  <TextBlock
+				  FontSize="14"
+				  FontWeight="Bold"
+				  Text="{Binding Title}"
+				  HorizontalAlignment="Center"
+				  Margin="0, 5, 0, 5"/>
+			  <TextBox
+				  FontSize="12"
+				  MinHeight="30"
+				  Height="30"
+				  Text="{Binding SearchText}"
+				  ScrollViewer.VerticalScrollBarVisibility="Disabled"
+				  ScrollViewer.HorizontalScrollBarVisibility="Hidden"
+				  HorizontalAlignment="Stretch"
+				  Margin="5, 0, 5, 5"/>
+		  </StackPanel>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+</Styles>

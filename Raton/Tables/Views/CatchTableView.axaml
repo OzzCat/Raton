@@ -1,0 +1,103 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:vm="using:Raton.Tables.ViewModels"
+			 xmlns:m="using:Raton.Tables.Models"
+			 xmlns:templates="using:Raton.Tables.Templates.Views"
+			 xmlns:templatesvm="using:Raton.Tables.Templates.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="Raton.Tables.Views.CatchTableView"
+			 x:DataType="vm:CatchTableViewModel">
+	<TreeDataGrid Grid.Row="1"
+					  Source="{Binding ItemsTree}"
+					  Name="CatchTable">
+		<TreeDataGrid.DataTemplates>
+			<DataTemplate DataType="templatesvm:CustomHeader">
+				<templates:CustomHeader/>
+			</DataTemplate>
+			<DataTemplate DataType="vm:CatchTableViewModel">
+				<templates:ButtonHeaderTemplate />
+			</DataTemplate>
+		</TreeDataGrid.DataTemplates>
+		<TreeDataGrid.Resources>
+			<DataTemplate x:Key="AnimalCell" DataType="m:TableCatchModel">
+				<ComboBox
+					Classes="cellComboSelector"
+					ItemsSource="{Binding #CatchTable.((vm:CatchTableViewModel)DataContext).AnimalsList}"
+					SelectedItem="{Binding Animal}"/>
+			</DataTemplate>
+			<DataTemplate x:Key="PointCell" DataType="m:TableCatchModel">
+				<ComboBox
+					Classes="cellComboSelector"
+					ItemsSource="{Binding #CatchTable.((vm:CatchTableViewModel)DataContext).PointsList}"
+					SelectedItem="{Binding Point}">
+				</ComboBox>
+			</DataTemplate>
+			<DataTemplate x:Key="SeriesCell" DataType="m:TableCatchModel">
+				<ComboBox
+						Classes="cellComboSelector"
+						ItemsSource="{Binding #CatchTable.((vm:CatchTableViewModel)DataContext).SeriesList}"
+						SelectedItem="{Binding Series}">
+				</ComboBox>
+			</DataTemplate>
+			<DataTemplate x:Key="DateCell" DataType="m:TableCatchModel">
+				<CalendarDatePicker SelectedDate="{Binding Date}"
+									IsEnabled="False">
+					<CalendarDatePicker.Styles>
+						<Style Selector=":disabled">
+							<Style Selector="^ /template/ Border#Background">
+								<Setter Property="Background" Value="{x:Null}"/>
+								<Setter Property="BorderThickness" Value="0"/>
+							</Style>
+							<Style Selector="^ /template/ Button#PART_Button">
+								<Setter Property="IsVisible" Value="False" />
+							</Style>
+							<Style Selector="^ /template/ TextBox#PART_TextBox:disabled">
+								<Style Selector="^ TextPresenter#PART_TextPresenter:disabled">
+									<Setter Property="TextElement.Foreground" Value="Black" />
+								</Style>
+							</Style>
+						</Style>
+					</CalendarDatePicker.Styles>
+				</CalendarDatePicker>
+			</DataTemplate>
+			<DataTemplate x:Key="DateCellEdit" DataType="m:TableCatchModel">
+				<CalendarDatePicker SelectedDate="{Binding Date}"
+									IsEnabled="True"
+									Background="{x:Null}">
+				</CalendarDatePicker>
+			</DataTemplate>
+			<DataTemplate x:Key="EditCell" DataType="m:TableCatchModel">
+				<Grid ColumnDefinitions="*, *, *">
+					<Button
+						Grid.Column="0"
+						Classes="edit"
+						IsEnabled="{Binding IsDirty}"
+						Command="{Binding #CatchTable.((vm:CatchTableViewModel)DataContext).SaveItemChanges}"
+						CommandParameter="{Binding TableID}">
+						<PathIcon
+							Name="EditCellSaveIcon"
+							Data="{DynamicResource save_regular}" />
+					</Button>
+					<Button
+						Grid.Column="1"
+						Classes="edit"
+						IsEnabled="{Binding IsDirty}"
+						Command="{Binding #CatchTable.((vm:CatchTableViewModel)DataContext).DiscardItemChanges}"
+						CommandParameter="{Binding TableID}">
+						<PathIcon
+							Name="DiscardChangesIcon"
+							Data="{DynamicResource dismiss_regular}" />
+					</Button>
+					<Button
+						Grid.Column="2"
+						Command="{Binding #CatchTable.((vm:CatchTableViewModel)DataContext).DeleteItem}"
+						CommandParameter="{Binding TableID}">
+						<PathIcon Data="{DynamicResource delete_regular}" />
+					</Button>
+				</Grid>
+			</DataTemplate>
+		</TreeDataGrid.Resources>
+	</TreeDataGrid>
+</UserControl>

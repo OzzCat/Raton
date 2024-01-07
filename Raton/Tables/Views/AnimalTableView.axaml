@@ -1,0 +1,66 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:Raton.Tables.ViewModels"
+			 xmlns:m="using:Raton.Tables.Models"
+			 xmlns:templates="using:Raton.Tables.Templates.Views"
+			 xmlns:templatesvm="using:Raton.Tables.Templates.ViewModels"
+			 mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="Raton.Tables.Views.AnimalTableView"
+			 x:DataType="vm:AnimalTableViewModel">
+	<TreeDataGrid
+					  Source="{Binding ItemsTree}"
+					  Name="AnimalTable">
+
+		<TreeDataGrid.DataTemplates>
+			<DataTemplate DataType="templatesvm:CustomHeader">
+				<templates:CustomHeader />
+			</DataTemplate>
+			<DataTemplate DataType="vm:AnimalTableViewModel">
+				<templates:ButtonHeaderTemplate />
+			</DataTemplate>
+		</TreeDataGrid.DataTemplates>
+		<TreeDataGrid.Resources>
+			<DataTemplate x:Key="SexCell" DataType="m:TableAnimalModel">
+				<ComboBox
+					Classes="cellComboSelector"
+					ItemsSource="{Binding #AnimalTable.((vm:AnimalTableViewModel)DataContext).SexEnum}"
+					SelectedItem="{Binding Sex}">
+				</ComboBox>
+			</DataTemplate>
+			<DataTemplate x:Key="EditCell" DataType="m:TableAnimalModel">
+				<Grid ColumnDefinitions="*, *, *">
+					<Button
+						Grid.Column="0"
+						Classes="edit"
+						IsEnabled="{Binding IsDirty}"
+						Command="{Binding #AnimalTable.((vm:AnimalTableViewModel)DataContext).SaveItemChangesCommand}"
+						CommandParameter="{Binding TableID}">
+						<PathIcon
+							Name="EditCellSaveIcon"
+							Data="{DynamicResource save_regular}" />
+					</Button>
+					<Button
+						Grid.Column="1"
+						Classes="edit"
+						IsEnabled="{Binding IsDirty}"
+						Command="{Binding #AnimalTable.((vm:AnimalTableViewModel)DataContext).DiscardItemChangesCommand}"
+						CommandParameter="{Binding TableID}">
+						<PathIcon
+							Name="DiscardChangesIcon"
+							Data="{DynamicResource dismiss_regular}" />
+					</Button>
+					<Button
+						Grid.Column="2"
+						Classes="edit"
+						Command="{Binding #AnimalTable.((vm:AnimalTableViewModel)DataContext).DeleteItemCommand}"
+						CommandParameter="{Binding TableID}">
+						<PathIcon Data="{DynamicResource delete_regular}" />
+					</Button>
+				</Grid>
+			</DataTemplate>
+		</TreeDataGrid.Resources>
+	</TreeDataGrid>
+	
+</UserControl>
