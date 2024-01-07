@@ -1,8 +1,5 @@
-﻿using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Raton.Models.DbModels;
-using Raton.Models.DbModels.Enums;
-using SQLite;
 
 namespace Raton.Services.DbServices
 {
