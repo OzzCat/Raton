@@ -6,6 +6,8 @@ namespace Raton.Services.DbServices
 {
     public interface ICatchService : IBaseService<CatchModel>
     {
+        CatchModel? GetByIDWithParents(int pk);
+
         List<CatchModel> GetCatchesByAnimalAndSeries(string animalNumber, List<string> series);
 
         CatchModel? GetByAnimalPointSeriesAndDate(int animalID, int pointID, int seriesID, DateTime? dateTime);

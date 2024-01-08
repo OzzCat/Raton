@@ -10,7 +10,6 @@ using System;
 using Raton.Tables.Templates.ViewModels;
 using System.Collections.Generic;
 using Raton.Tables.Models;
-using DynamicData.Binding;
 using Raton.Models.DbModels;
 using System.Threading.Tasks;
 using System.Threading;
@@ -29,11 +28,11 @@ namespace Raton.Tables.ViewModels
         #endregion
 
         #region Headers
-        CustomHeader AnimalHeader = new CustomHeader("Animal");
-        CustomHeader PointHeader = new CustomHeader("Point");
-        CustomHeader SeriesHeader = new CustomHeader("Series");
-        CustomHeader DateHeader = new CustomHeader("Date");
-        CustomHeader CommentHeader = new CustomHeader("Comment");
+        CustomHeader AnimalHeader = new("Animal");
+        CustomHeader PointHeader = new("Point");
+        CustomHeader SeriesHeader = new("Series");
+        CustomHeader DateHeader = new("Date");
+        CustomHeader CommentHeader = new("Comment");
         #endregion
 
         #region Filtering
@@ -105,6 +104,10 @@ namespace Raton.Tables.ViewModels
             _pointService = pointService;
             _seriesService = seriesService;
             _catchService = catchService;
+
+            AnimalsList = new List<string>();
+            PointsList = new List<string>();
+            SeriesList = new List<string>();
 
             Observable.Start(() => {
                 UpdateView();
@@ -186,8 +189,6 @@ namespace Raton.Tables.ViewModels
 
             ItemsTree.Items = _itemsList;
 
-            
-
             #region Setup Columns
             ItemsTree.Columns.Insert(
                 0,
@@ -218,7 +219,7 @@ namespace Raton.Tables.ViewModels
                 new TemplateColumn<TableCatchModel>(
                         DateHeader,
                         "DateCell",
-                        "DateCellEdit",
+                        "DateChangeCell",
                         GridLength.Star,
                         new()
                         {
@@ -304,7 +305,7 @@ namespace Raton.Tables.ViewModels
         protected override Action<int> DiscardItemChanges =>
             async (int tableID) =>
             {
-                var dbCatch = _catchService.GetByID(tableID);
+                var dbCatch = _catchService.GetByIDWithParents(tableID);
                 if (dbCatch == null)
                 {
                     var box = MessageBoxManager
@@ -331,7 +332,10 @@ namespace Raton.Tables.ViewModels
         protected override Action<bool> AddItem =>
             async (bool DiscardEditingValues) =>
             {
-                #region Check Animal
+                #region Check Animal,
+                if (NewItem is null)
+                    throw new ApplicationException();
+
                 if (string.IsNullOrEmpty(NewItem.Animal))
                 {
                     var animalBox = MessageBoxManager
@@ -476,10 +480,9 @@ namespace Raton.Tables.ViewModels
         {
             var animalSource = _animalService.GetAll();
 
-            AnimalsList = new List<string>
-            {
-                string.Empty
-            };
+            AnimalsList.Clear();
+
+            AnimalsList.Add(string.Empty);
 
             foreach (var animal in animalSource)
                 AnimalsList.Add(animal.ID);
@@ -489,10 +492,9 @@ namespace Raton.Tables.ViewModels
         {
             var pointsSource = _pointService.GetAll();
 
-            PointsList = new List<string>
-            {
-                string.Empty
-            };
+            PointsList.Clear();
+
+            PointsList.Add(string.Empty);
 
             foreach (var animal in pointsSource)
                 PointsList.Add(animal.ID);
@@ -502,10 +504,9 @@ namespace Raton.Tables.ViewModels
         {
             var seriesSource = _seriesService.GetAll();
 
-            SeriesList = new List<string>
-            {
-                string.Empty
-            };
+            SeriesList.Clear();
+
+            SeriesList.Add(string.Empty);
 
             foreach (var serie in seriesSource)
                 SeriesList.Add(serie.ID);
@@ -515,7 +516,7 @@ namespace Raton.Tables.ViewModels
         private static bool StringContains(string str, string? query)
         {
             if (query == null) return false;
-            return str.IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0;
+            return str.Contains(query);
         }
 
         public Func<string, CancellationToken, Task<IEnumerable<object>>> PopulateAnimalsAsync =>

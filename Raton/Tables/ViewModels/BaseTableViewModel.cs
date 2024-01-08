@@ -70,12 +70,12 @@ namespace Raton.Tables.ViewModels
             DiscardAllChangesCommand = ReactiveCommand.CreateFromTask(async () => 
             DiscardAllChanges());
 
-            ShowOrHideAddPanelCommand = ReactiveCommand.Create(ShowOrHideAddPanel);
-
             AddItemCommand = ReactiveCommand.Create(AddItem);
 
             DeleteItemCommand = ReactiveCommand.Create(DeleteItem);
             #endregion
+
+            ShowOrHideAddPanelCommand = ReactiveCommand.Create(ShowOrHideAddPanel);
 
             var buttonHeader = new Templates.Views.ButtonHeaderTemplate()
             {

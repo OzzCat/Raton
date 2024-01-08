@@ -2,11 +2,9 @@
 using MsBox.Avalonia.Enums;
 using MsBox.Avalonia;
 using Raton.Services.DbServices;
-using Raton.Views;
 using ReactiveUI;
 using System;
 using System.Collections.ObjectModel;
-using System.Reactive;
 using System.Reactive.Linq;
 using Avalonia.Controls;
 using Avalonia.Controls.Models.TreeDataGrid;
@@ -15,7 +13,6 @@ using Raton.Tables.Templates.ViewModels;
 using System.Collections.Generic;
 using System.Linq;
 using Raton.Models.DbModels.Enums;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Raton.Models.DbModels;
 
 namespace Raton.Tables.ViewModels
@@ -24,9 +21,6 @@ namespace Raton.Tables.ViewModels
     {
         #region Collections
         public ObservableCollection<string> SexEnum { get; private set; }
-        #endregion
-
-        #region Dialogues
         #endregion
 
         #region Headers

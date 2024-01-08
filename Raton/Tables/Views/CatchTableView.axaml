@@ -155,7 +155,7 @@
 						</CalendarDatePicker.Styles>
 					</CalendarDatePicker>
 				</DataTemplate>
-				<DataTemplate x:Key="DateCellEdit" DataType="m:TableCatchModel">
+				<DataTemplate x:Key="DateChangeCell" DataType="m:TableCatchModel">
 					<CalendarDatePicker SelectedDate="{Binding Date}"
 										IsEnabled="True"
 										Background="{x:Null}">
@@ -167,7 +167,7 @@
 							Grid.Column="0"
 							Classes="edit"
 							IsEnabled="{Binding IsDirty}"
-							Command="{Binding #CatchTable.((vm:CatchTableViewModel)DataContext).SaveItemChanges}"
+							Command="{Binding $parent[TreeDataGrid].((vm:CatchTableViewModel)DataContext).SaveItemChangesCommand}"
 							CommandParameter="{Binding TableID}">
 							<PathIcon
 								Name="EditCellSaveIcon"
@@ -177,7 +177,7 @@
 							Grid.Column="1"
 							Classes="edit"
 							IsEnabled="{Binding IsDirty}"
-							Command="{Binding #CatchTable.((vm:CatchTableViewModel)DataContext).DiscardItemChanges}"
+							Command="{Binding $parent[TreeDataGrid].((vm:CatchTableViewModel)DataContext).DiscardItemChangesCommand}"
 							CommandParameter="{Binding TableID}">
 							<PathIcon
 								Name="DiscardChangesIcon"
@@ -185,7 +185,7 @@
 						</Button>
 						<Button
 							Grid.Column="2"
-							Command="{Binding #CatchTable.((vm:CatchTableViewModel)DataContext).DeleteItem}"
+							Command="{Binding $parent[TreeDataGrid].((vm:CatchTableViewModel)DataContext).DeleteItemCommand}"
 							CommandParameter="{Binding TableID}">
 							<PathIcon Data="{DynamicResource delete_regular}" />
 						</Button>
