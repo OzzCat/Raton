@@ -10,7 +10,7 @@ namespace Raton.Services.DbServices
 
         List<CatchModel> GetCatchesByAnimalAndSeries(string animalNumber, List<string> series);
 
-        CatchModel? GetByAnimalPointSeriesAndDate(int animalID, int pointID, int seriesID, DateTime? dateTime);
+        CatchModel? GetByAnimalPointSeriesAndDate(int animalID, int pointID, int seriesID, DateTime dateTime);
 
         List<CatchModel> GetCatchesByAnimalAndSeriesWithPointAndSeries(string animalNumber, List<string> series);
 

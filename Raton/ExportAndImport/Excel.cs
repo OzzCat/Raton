@@ -11,7 +11,7 @@ using System.Globalization;
 using static Raton.Models.DbModels.Enums.SexEnumClass;
 using Raton.Models.DbModels.Enums;
 
-namespace Raton.Import
+namespace Raton.ExportAndImport
 {
     public static class Excel
     {
@@ -73,13 +73,18 @@ namespace Raton.Import
                         {
                             var st = firstWorksheet.Cells[line, 2].Value.ToString();
 
-                            animalModel.Sex = SexEnumClass.ConvertStringToSexEnum(st);
+                            animalModel.Sex = ConvertStringToSexEnum(st);
                         }
                         else
                         {
                             animalModel.Sex = SexEnum.NS;
                         }
-                                        
+
+                        if (firstWorksheet.Cells[line, 8].Value is not null)
+                        {
+                            animalModel.Comment = firstWorksheet.Cells[line, 8].Value.ToString();
+                        }
+
                         animalService.Add(animalModel);
 
                         animalTableID = animalModel.TableID;
@@ -93,14 +98,14 @@ namespace Raton.Import
                     #endregion
 
                     #region Point
-                    if (firstWorksheet.Cells[line, 4].Value is null)
+                    if (firstWorksheet.Cells[line, 3].Value is null)
                     {
                         errorsList.Add("Line " + line.ToString() + ": No Point ID");
                         line++;
                         continue;
                     }
 
-                    var pointID = firstWorksheet.Cells[line, 4].Value.ToString();
+                    var pointID = firstWorksheet.Cells[line, 3].Value.ToString();
 
                     var getPoint = pointService.GetByID(pointID);
                     if (getPoint is null)
@@ -112,9 +117,9 @@ namespace Raton.Import
                         try
                         {
                             pointModel.Latitude = double.Parse
-                                (firstWorksheet.Cells[line, 5].Value.ToString(), CultureInfo.InvariantCulture);
+                                (firstWorksheet.Cells[line, 4].Value.ToString(), CultureInfo.InvariantCulture);
                             pointModel.Longitude = double.Parse
-                                (firstWorksheet.Cells[line, 6].Value.ToString(), CultureInfo.InvariantCulture);
+                                (firstWorksheet.Cells[line, 5].Value.ToString(), CultureInfo.InvariantCulture);
                         }
                         catch
                         {
@@ -122,9 +127,14 @@ namespace Raton.Import
                             line++;
                             continue;
                         }
+                        if (firstWorksheet.Cells[line, 9].Value is not null)
+                        {
+                            pointModel.Comment = firstWorksheet.Cells[line, 9].Value.ToString();
+                        }
+
 
                         pointService.Add(pointModel);
-                        
+
                         pointTableID = pointModel.TableID;
 
                         newPointList.Add(pointTableID);
@@ -136,7 +146,7 @@ namespace Raton.Import
                     #endregion
 
                     #region Date and Series
-                    var date = DateTime.Now;
+                    var date = new DateTime();
                     try
                     {
                         date = (DateTime)firstWorksheet.Cells[line, 7].Value;
@@ -150,24 +160,54 @@ namespace Raton.Import
 
                     string seriesID = string.Empty;
 
-                    if (firstWorksheet.Cells[line, 3].Value is null)
+                    if (firstWorksheet.Cells[line, 6].Value is null)
                     {
                         seriesID = date.Year.ToString() + " " + date.Month.ToString();
                     }
                     else
                     {
-                        seriesID = firstWorksheet.Cells[line, 3].Value.ToString();
+                        seriesID = firstWorksheet.Cells[line, 6].Value.ToString();
                     }
 
                     var getSeries = seriesService.GetByID(seriesID);
-                    if (getSeries == null) 
+                    if (getSeries == null)
                     {
                         var seriesModel = new SeriesModel();
+
                         seriesModel.ID = seriesID;
-                        seriesModel.ColorA = 130;
-                        seriesModel.ColorR = Convert.ToByte(rnd.Next(0, 255));
-                        seriesModel.ColorG = Convert.ToByte(rnd.Next(0, 255));
-                        seriesModel.ColorB = Convert.ToByte(rnd.Next(0, 255));
+
+                        if (firstWorksheet.Cells[line, 10].Value is not null)
+                        {
+                            seriesModel.Comment = firstWorksheet.Cells[line, 10].Value.ToString();
+                        }
+
+                        if (firstWorksheet.Cells[line, 12].Value is not null
+                            && firstWorksheet.Cells[line, 13].Value is not null
+                            && firstWorksheet.Cells[line, 14].Value is not null
+                            && firstWorksheet.Cells[line, 15].Value is not null)
+                        {
+                            try
+                            {
+                                seriesModel.ColorA = byte.Parse(firstWorksheet.Cells[line, 12].Value.ToString());
+                                seriesModel.ColorR = byte.Parse(firstWorksheet.Cells[line, 13].Value.ToString());
+                                seriesModel.ColorG = byte.Parse(firstWorksheet.Cells[line, 14].Value.ToString());
+                                seriesModel.ColorB = byte.Parse(firstWorksheet.Cells[line, 15].Value.ToString());
+                            }
+                            catch
+                            {
+                                seriesModel.ColorA = 255;
+                                seriesModel.ColorR = Convert.ToByte(rnd.Next(0, 255));
+                                seriesModel.ColorG = Convert.ToByte(rnd.Next(0, 255));
+                                seriesModel.ColorB = Convert.ToByte(rnd.Next(0, 255));
+                            }
+                        }
+                        else
+                        {
+                            seriesModel.ColorA = 130;
+                            seriesModel.ColorR = Convert.ToByte(rnd.Next(0, 255));
+                            seriesModel.ColorG = Convert.ToByte(rnd.Next(0, 255));
+                            seriesModel.ColorB = Convert.ToByte(rnd.Next(0, 255));
+                        }
 
                         seriesService.Add(seriesModel);
 
@@ -197,6 +237,11 @@ namespace Raton.Import
 
                     if (testUnique is not null)
                         errorsList.Add("Line " + line.ToString() + " is a duplicate of already existing catch");
+
+                    if (firstWorksheet.Cells[line, 11].Value is not null)
+                    {
+                        catchModel.Comment = firstWorksheet.Cells[line, 11].Value.ToString();
+                    }
 
                     catchService.Add(catchModel);
 
@@ -244,6 +289,64 @@ namespace Raton.Import
                 return "Updated with previously listed errors";
             }
             return "Succesfully updated";
+        }
+
+
+        public static void ExportToXlsx(
+            string filePath, IAnimalService animalService,
+            IPointService pointService, ICatchService catchService, ISeriesService seriesService)
+        {
+            using (ExcelPackage excelPackage = new ExcelPackage())
+            {
+                excelPackage.Workbook.Worksheets.Add(DateTime.Today.ToString());
+                ExcelWorksheet firstWorksheet = excelPackage.Workbook.Worksheets[0];
+                #region Create Headers
+                firstWorksheet.Cells[1, 1].Value = "Animal";
+                firstWorksheet.Cells[1, 2].Value = "Sex";
+                firstWorksheet.Cells[1, 3].Value = "Point";
+                firstWorksheet.Cells[1, 4].Value = "Latitude";
+                firstWorksheet.Cells[1, 5].Value = "Longitude";
+                firstWorksheet.Cells[1, 6].Value = "Series";
+                firstWorksheet.Cells[1, 7].Value = "Date";
+                firstWorksheet.Cells[1, 8].Value = "Animal Comment";
+                firstWorksheet.Cells[1, 9].Value = "Point Comment";
+                firstWorksheet.Cells[1, 10].Value = "Series Comment";
+                firstWorksheet.Cells[1, 11].Value = "Catch Comment";
+                firstWorksheet.Cells[1, 12].Value = "Series Color A";
+                firstWorksheet.Cells[1, 13].Value = "Series Color R";
+                firstWorksheet.Cells[1, 14].Value = "Series Color G";
+                firstWorksheet.Cells[1, 15].Value = "Series Color B";
+                #endregion
+
+                var catchesList = catchService.GetAllWithParents();
+
+                int line = 2;
+
+                foreach (var cat in catchesList)
+                {
+                    firstWorksheet.Cells[line, 1].Value = cat.Animal.ID;
+                    firstWorksheet.Cells[line, 2].Value = SexEnumClass.ConvertFromSexEnumToString(cat.Animal.Sex);
+                    firstWorksheet.Cells[line, 3].Value = cat.Point.ID;
+                    firstWorksheet.Cells[line, 4].Value = cat.Point.Latitude.ToString(CultureInfo.InvariantCulture);
+                    firstWorksheet.Cells[line, 5].Value = cat.Point.Longitude.ToString(CultureInfo.InvariantCulture);
+                    firstWorksheet.Cells[line, 6].Value = cat.Series.ID;
+                    firstWorksheet.Cells[line, 7].Value = cat.Date.ToOADate();
+                    firstWorksheet.Cells[line, 8].Value = cat.Animal.Comment;
+                    firstWorksheet.Cells[line, 9].Value = cat.Point.Comment;
+                    firstWorksheet.Cells[line, 10].Value = cat.Series.Comment;
+                    firstWorksheet.Cells[line, 11].Value = cat.Comment;
+                    firstWorksheet.Cells[line, 12].Value = cat.Series.ColorA;
+                    firstWorksheet.Cells[line, 13].Value = cat.Series.ColorR;
+                    firstWorksheet.Cells[line, 14].Value = cat.Series.ColorG;
+                    firstWorksheet.Cells[line, 15].Value = cat.Series.ColorB;
+
+                    line++;
+                }
+
+                FileInfo fi = new(filePath + "\\ratonExport.xlsx");
+
+                excelPackage.SaveAs(fi);
+            }
         }
     }
 }

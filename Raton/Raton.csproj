@@ -49,6 +49,7 @@
 
 
   <ItemGroup>
+    <Folder Include="Import\" />
     <Folder Include="Models\SettingsModels\" />
     <Folder Include="Tables\Dialogs\ViewModels\" />
     <Folder Include="Tables\Dialogs\Views\" />

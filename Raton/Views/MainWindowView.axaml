@@ -16,7 +16,7 @@
 		<Border
 			BorderThickness="0, 0, 0, 2"
 			BorderBrush="{DynamicResource DarkGreenBrush}"/>
-		<Grid ColumnDefinitions="Auto, Auto, *, Auto, Auto">
+		<Grid ColumnDefinitions="Auto, Auto, *, Auto, Auto, Auto">
 			<Button
 					Grid.Column="0"
 					VerticalAlignment="Center"
@@ -53,6 +53,15 @@
 			</Button>
 			<Button
 					Grid.Column="4"
+					VerticalAlignment="Center"
+					HorizontalAlignment="Center"
+					Margin="5"
+					ToolTip.Tip="Export data to Excel"
+					Command="{Binding OpenDirectoryForExportCommand}">
+				<PathIcon Data="{DynamicResource table_move_right_regular}" />
+			</Button>
+			<Button
+					Grid.Column="5"
 					VerticalAlignment="Center"
 					HorizontalAlignment="Center"
 					Margin="5"

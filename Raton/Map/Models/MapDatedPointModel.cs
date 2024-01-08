@@ -12,7 +12,7 @@ namespace Raton.Map.Models
         public DateTime Date { get; set; }
         public Color Color { get; set; }
 
-        public MapDatedPointModel(PointModel point, SeriesModel series, DateTime? date)
+        public MapDatedPointModel(PointModel point, SeriesModel series, DateTime date)
         {
             Name = point.ID;
             Latitude = point.Latitude;
@@ -22,7 +22,7 @@ namespace Raton.Map.Models
             this.Color.R = series.ColorR;
             this.Color.G = series.ColorG;
             this.Color.B = series.ColorB;
-            Date = date ?? DateTime.Today;
+            Date = date;
         }
 
         public int CompareTo(MapDatedPointModel? other)

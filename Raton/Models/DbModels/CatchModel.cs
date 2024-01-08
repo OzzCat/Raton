@@ -17,7 +17,7 @@ namespace Raton.Models.DbModels
         public int SeriesTableID { get; set; }
         public SeriesModel Series { get; set; }
 
-        public DateTime? Date { get; set; }
+        public DateTime Date { get; set; }
 
         public string? Comment { get; set; }
     }

@@ -11,6 +11,7 @@ using System.Reactive.Linq;
 using System.Windows.Input;
 using System;
 using Splat;
+using Raton.ExportAndImport;
 
 namespace Raton.ViewModels
 {
@@ -40,6 +41,7 @@ namespace Raton.ViewModels
 
         #region File Commands and Interactions
         public ICommand OpenFileCommand { get; }
+        public ICommand OpenDirectoryForExportCommand { get; }
         public ICommand DropDbCommand { get; }
         #endregion
 
@@ -71,7 +73,7 @@ namespace Raton.ViewModels
                 {
                     var result = res.First();
                     var filePath = result.Path.LocalPath;
-                    var importResult = await Import.Excel.ImportXlsx(filePath, _animalService, _pointService, _catchService, _seriesService);
+                    var importResult = await Excel.ImportXlsx(filePath, _animalService, _pointService, _catchService, _seriesService);
 
                     if (Router.NavigationStack.Count > 0)
                     {
@@ -83,6 +85,35 @@ namespace Raton.ViewModels
                     var box = MessageBoxManager
                         .GetMessageBoxStandard("Import finished",
                         "Result: " + importResult,
+                        ButtonEnum.Ok);
+
+                    await box.ShowWindowAsync();
+                }
+            });
+
+            OpenDirectoryForExportCommand = ReactiveCommand.CreateFromTask(async () =>
+            {
+                var storageProvider = Locator.Current.GetService<IStorageProvider>();
+
+                if (storageProvider is null)
+                    throw new NotImplementedException();
+
+                var res = await storageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
+                {
+                    Title = "Select a place to save your file",
+                    AllowMultiple = false
+                });
+
+                if (res is not null && res.Count != 0)
+                {
+                    var result = res.First();
+                    var filePath = result.Path.LocalPath;
+                    
+                    Excel.ExportToXlsx(filePath, _animalService, _pointService, _catchService, _seriesService);
+
+                    var box = MessageBoxManager
+                        .GetMessageBoxStandard("Export finished",
+                        "Result: ",
                         ButtonEnum.Ok);
 
                     await box.ShowWindowAsync();

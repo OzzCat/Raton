@@ -277,6 +277,17 @@ namespace Raton.Tables.ViewModels
 
                     return;
                 }
+
+                if (cat.Date is null)
+                {
+                    var seriesBox = MessageBoxManager
+                        .GetMessageBoxStandard("Error", "Date can't be empty",
+                        ButtonEnum.Ok);
+
+                    await seriesBox.ShowWindowAsync();
+
+                    return;
+                }
                 #endregion
 
                 #region Check Catch Existance
@@ -337,7 +348,7 @@ namespace Raton.Tables.ViewModels
 
                 #region Check Unique
                 var testUnique = _catchService.GetByAnimalPointSeriesAndDate(
-                    dbAnimal.TableID, dbPoint.TableID, dbSeries.TableID, NewItem.Date);
+                    dbAnimal.TableID, dbPoint.TableID, dbSeries.TableID, cat.Date.Value);
 
                 if (testUnique is not null)
                 {
@@ -353,7 +364,7 @@ namespace Raton.Tables.ViewModels
                 dbCatch.AnimalTableID = dbAnimal.TableID;
                 dbCatch.PointTableID = dbPoint.TableID;
                 dbCatch.SeriesTableID = dbSeries.TableID;
-                dbCatch.Date = cat.Date;
+                dbCatch.Date = cat.Date.Value;
                 dbCatch.Comment = cat.Comment;
 
                 _catchService.Update(dbCatch);
@@ -427,6 +438,17 @@ namespace Raton.Tables.ViewModels
 
                     return;
                 }
+
+                if (NewItem.Date is null)
+                {
+                    var seriesBox = MessageBoxManager
+                        .GetMessageBoxStandard("Error", "Date can't be empty",
+                        ButtonEnum.Ok);
+
+                    await seriesBox.ShowWindowAsync();
+
+                    return;
+                }
                 #endregion
 
                 #region Check Animal Existance
@@ -473,7 +495,7 @@ namespace Raton.Tables.ViewModels
 
                 #region Check Unique
                 var testUnique = _catchService.GetByAnimalPointSeriesAndDate(
-                    dbAnimal.TableID, dbPoint.TableID, dbSeries.TableID, NewItem.Date);
+                    dbAnimal.TableID, dbPoint.TableID, dbSeries.TableID, NewItem.Date.Value);
 
                 if (testUnique is not null)
                 {
@@ -491,7 +513,7 @@ namespace Raton.Tables.ViewModels
                     AnimalTableID = dbAnimal.TableID,
                     PointTableID = dbPoint.TableID,
                     SeriesTableID = dbSeries.TableID,
-                    Date = NewItem.Date,
+                    Date = NewItem.Date.Value,
                     Comment = NewItem.Comment
                 };
 

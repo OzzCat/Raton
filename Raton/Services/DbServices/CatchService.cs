@@ -38,7 +38,7 @@ namespace Raton.Services.DbServices
                        .ToList();
         }
 
-        public CatchModel? GetByAnimalPointSeriesAndDate(int animalID, int pointID, int seriesID, DateTime? dateTime)
+        public CatchModel? GetByAnimalPointSeriesAndDate(int animalID, int pointID, int seriesID, DateTime dateTime)
         {
             return db.Catches
                        .Where(x => 
