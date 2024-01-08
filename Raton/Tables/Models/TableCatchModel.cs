@@ -51,8 +51,19 @@ namespace Raton.Tables.Models
             _animal = catchModel.Animal.ID;
             _point = catchModel.Point.ID;
             _series = catchModel.Series.ID;
-            Date = catchModel.Date;
+            _date = catchModel.Date;
             _comment = catchModel.Comment ?? string.Empty;
+            _isDirty = false;
+        }
+
+        public TableCatchModel()
+        {
+            TableID = -1;
+            _animal = string.Empty;
+            _point = string.Empty;
+            _series = string.Empty;
+            _date = null;
+            _comment = string.Empty;
             _isDirty = false;
         }
     }

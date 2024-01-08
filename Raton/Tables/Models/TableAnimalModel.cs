@@ -42,5 +42,14 @@ namespace Raton.Tables.Models
             _comment = animalModel.Comment ?? string.Empty;
             _isDirty = false;
         }
+
+        public TableAnimalModel()
+        {
+            TableID = -1;
+            _id = string.Empty;
+            _sex = string.Empty;
+            _comment = string.Empty;
+            _isDirty = false;
+        }
     }
 }

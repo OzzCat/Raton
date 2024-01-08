@@ -9,95 +9,189 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Raton.Tables.Views.CatchTableView"
 			 x:DataType="vm:CatchTableViewModel">
-	<TreeDataGrid Grid.Row="1"
-					  Source="{Binding ItemsTree}"
-					  Name="CatchTable">
-		<TreeDataGrid.DataTemplates>
-			<DataTemplate DataType="templatesvm:CustomHeader">
-				<templates:CustomHeader/>
-			</DataTemplate>
-			<DataTemplate DataType="vm:CatchTableViewModel">
-				<templates:ButtonHeaderTemplate />
-			</DataTemplate>
-		</TreeDataGrid.DataTemplates>
-		<TreeDataGrid.Resources>
-			<DataTemplate x:Key="AnimalCell" DataType="m:TableCatchModel">
-				<AutoCompleteBox
-					Classes="cellAutoSelector"
-					ItemsSource="{Binding #CatchTable.((vm:CatchTableViewModel)DataContext).AnimalsList}"
-					SelectedItem="{Binding Animal}"/>
-			</DataTemplate>
-			<DataTemplate x:Key="PointCell" DataType="m:TableCatchModel">
-				<AutoCompleteBox
-					Classes="cellAutoSelector"
-					ItemsSource="{Binding #CatchTable.((vm:CatchTableViewModel)DataContext).PointsList}"
-					SelectedItem="{Binding Point}">
-				</AutoCompleteBox>
-			</DataTemplate>
-			<DataTemplate x:Key="SeriesCell" DataType="m:TableCatchModel">
-				<AutoCompleteBox
-						Classes="cellAutoSelector"
-						ItemsSource="{Binding #CatchTable.((vm:CatchTableViewModel)DataContext).SeriesList}"
-						SelectedItem="{Binding Series}">
-				</AutoCompleteBox>
-			</DataTemplate>
-			<DataTemplate x:Key="DateCell" DataType="m:TableCatchModel">
-				<CalendarDatePicker SelectedDate="{Binding Date}"
-									IsEnabled="False">
-					<CalendarDatePicker.Styles>
-						<Style Selector=":disabled">
-							<Style Selector="^ /template/ Border#Background">
-								<Setter Property="Background" Value="{x:Null}"/>
-								<Setter Property="BorderThickness" Value="0"/>
-							</Style>
-							<Style Selector="^ /template/ Button#PART_Button">
-								<Setter Property="IsVisible" Value="False" />
-							</Style>
-							<Style Selector="^ /template/ TextBox#PART_TextBox:disabled">
-								<Style Selector="^ TextPresenter#PART_TextPresenter:disabled">
-									<Setter Property="TextElement.Foreground" Value="Black" />
-								</Style>
-							</Style>
-						</Style>
-					</CalendarDatePicker.Styles>
-				</CalendarDatePicker>
-			</DataTemplate>
-			<DataTemplate x:Key="DateCellEdit" DataType="m:TableCatchModel">
-				<CalendarDatePicker SelectedDate="{Binding Date}"
-									IsEnabled="True"
-									Background="{x:Null}">
-				</CalendarDatePicker>
-			</DataTemplate>
-			<DataTemplate x:Key="EditCell" DataType="m:TableCatchModel">
-				<Grid ColumnDefinitions="*, *, *">
-					<Button
+	<Grid RowDefinitions="Auto, *">
+		<Border
+			Grid.Row="0"
+			IsVisible="{Binding IsAddPanelVisible}">
+			<Grid
+				ColumnDefinitions="*, 2*">
+				<Grid
+					Grid.Column="1"
+					RowDefinitions="Auto, Auto"
+					ColumnDefinitions="*, *, *, Auto"
+					Margin="5">
+					<AutoCompleteBox
+						Grid.Row="0"
 						Grid.Column="0"
-						Classes="edit"
-						IsEnabled="{Binding IsDirty}"
-						Command="{Binding #CatchTable.((vm:CatchTableViewModel)DataContext).SaveItemChanges}"
-						CommandParameter="{Binding TableID}">
-						<PathIcon
-							Name="EditCellSaveIcon"
-							Data="{DynamicResource save_regular}" />
-					</Button>
-					<Button
+						HorizontalAlignment="Stretch"
+						VerticalAlignment="Stretch"
+						Margin="0, 0, 0, 5"
+						Classes="Required"
+						Watermark="Animal"
+						ItemsSource="{Binding AnimalsList}"
+						AsyncPopulator="{Binding PopulateAnimalsAsync}"
+						SelectedItem="{Binding NewItem.Animal}"
+						/>
+					<AutoCompleteBox
+						Grid.Row="0"
 						Grid.Column="1"
-						Classes="edit"
-						IsEnabled="{Binding IsDirty}"
-						Command="{Binding #CatchTable.((vm:CatchTableViewModel)DataContext).DiscardItemChanges}"
-						CommandParameter="{Binding TableID}">
+						HorizontalAlignment="Stretch"
+						VerticalAlignment="Stretch"
+						Margin="5, 0, 0, 5"
+						Classes="Required"
+						Watermark="Point"
+						FilterMode="Contains"
+						ItemsSource="{Binding PointsList}"
+						AsyncPopulator="{Binding PopulatePointsAsync}"
+						SelectedItem="{Binding NewItem.Point}"/>
+					<AutoCompleteBox
+						Grid.Row="0"
+						Grid.Column="2"
+						HorizontalAlignment="Stretch"
+						VerticalAlignment="Stretch"
+						Margin="5, 0, 0, 5"
+						Classes="Required"
+						Watermark="Series"
+						FilterMode="Contains"
+						ItemsSource="{Binding SeriesList}"
+						AsyncPopulator="{Binding PopulateSeriesAsync}"
+						SelectedItem="{Binding NewItem.Series}"/>
+					<CalendarDatePicker 
+						Grid.Row="1"
+						Grid.Column="0"
+						HorizontalAlignment="Stretch"
+						VerticalAlignment="Center"
+						Margin="0, 0, 0, 5"
+						SelectedDate="{Binding NewItem.Date}"/>
+					<TextBox
+						Grid.Row="1"
+						Grid.Column="1"
+						Grid.ColumnSpan="2"
+						Margin="5, 0, 0, 5"
+						HorizontalAlignment="Stretch"
+						VerticalAlignment="Stretch"
+						Watermark="Comment"
+						Text="{Binding NewItem.Comment}"/>
+					<Button
+						Grid.Row="0"
+						Grid.Column="3"
+						Margin="10, 0, 0, 5"
+						VerticalAlignment="Center"
+						ToolTip.Tip="Add item and discard changes in constructor"
+						Command="{Binding AddItemCommand}"
+						CommandParameter="{x:True}">
 						<PathIcon
-							Name="DiscardChangesIcon"
-							Data="{DynamicResource dismiss_regular}" />
+							Name="NewItemSaveDiscardChangesIcon"
+							Data="{DynamicResource add_regular}" />
 					</Button>
 					<Button
-						Grid.Column="2"
-						Command="{Binding #CatchTable.((vm:CatchTableViewModel)DataContext).DeleteItem}"
-						CommandParameter="{Binding TableID}">
-						<PathIcon Data="{DynamicResource delete_regular}" />
+						Grid.Row="1"
+						Grid.Column="3"
+						Margin="10, 0, 0, 0"
+						VerticalAlignment="Center"
+						ToolTip.Tip="Add item and save changes in constructor"
+						Command="{Binding AddItemCommand}"
+						CommandParameter="{x:False}">
+						<PathIcon
+							Name="NewItemSaveIcon"
+							Data="{DynamicResource save_copy_regular}" />
 					</Button>
 				</Grid>
-			</DataTemplate>
-		</TreeDataGrid.Resources>
-	</TreeDataGrid>
+			</Grid>
+		</Border>
+		<TreeDataGrid Grid.Row="1"
+					  Source="{Binding ItemsTree}"
+					  Name="CatchTable">
+			<TreeDataGrid.DataTemplates>
+				<DataTemplate DataType="templatesvm:CustomHeader">
+					<templates:CustomHeader/>
+				</DataTemplate>
+				<DataTemplate DataType="vm:CatchTableViewModel">
+					<templates:ButtonHeaderTemplate />
+				</DataTemplate>
+			</TreeDataGrid.DataTemplates>
+			<TreeDataGrid.Resources>
+				<DataTemplate x:Key="AnimalCell" DataType="m:TableCatchModel">
+					<AutoCompleteBox
+						Classes="cellAutoSelector"
+						ItemsSource="{Binding #CatchTable.((vm:CatchTableViewModel)DataContext).AnimalsList}"
+						AsyncPopulator="{Binding #CatchTable.((vm:CatchTableViewModel)DataContext).PopulateAnimalsAsync}"
+						SelectedItem="{Binding Animal}"/>
+				</DataTemplate>
+				<DataTemplate x:Key="PointCell" DataType="m:TableCatchModel">
+					<AutoCompleteBox
+						Classes="cellAutoSelector"
+						ItemsSource="{Binding #CatchTable.((vm:CatchTableViewModel)DataContext).PointsList}"
+						AsyncPopulator="{Binding #CatchTable.((vm:CatchTableViewModel)DataContext).PopulatePointsAsync}"
+						SelectedItem="{Binding Point}">
+					</AutoCompleteBox>
+				</DataTemplate>
+				<DataTemplate x:Key="SeriesCell" DataType="m:TableCatchModel">
+					<AutoCompleteBox
+							Classes="cellAutoSelector"
+							ItemsSource="{Binding #CatchTable.((vm:CatchTableViewModel)DataContext).SeriesList}"
+							AsyncPopulator="{Binding #CatchTable.((vm:CatchTableViewModel)DataContext).PopulateSeriesAsync}"
+							SelectedItem="{Binding Series}">
+					</AutoCompleteBox>
+				</DataTemplate>
+				<DataTemplate x:Key="DateCell" DataType="m:TableCatchModel">
+					<CalendarDatePicker SelectedDate="{Binding Date}"
+										IsEnabled="False">
+						<CalendarDatePicker.Styles>
+							<Style Selector=":disabled">
+								<Style Selector="^ /template/ Border#Background">
+									<Setter Property="Background" Value="{x:Null}"/>
+									<Setter Property="BorderThickness" Value="0"/>
+								</Style>
+								<Style Selector="^ /template/ Button#PART_Button">
+									<Setter Property="IsVisible" Value="False" />
+								</Style>
+								<Style Selector="^ /template/ TextBox#PART_TextBox:disabled">
+									<Style Selector="^ TextPresenter#PART_TextPresenter:disabled">
+										<Setter Property="TextElement.Foreground" Value="Black" />
+									</Style>
+								</Style>
+							</Style>
+						</CalendarDatePicker.Styles>
+					</CalendarDatePicker>
+				</DataTemplate>
+				<DataTemplate x:Key="DateCellEdit" DataType="m:TableCatchModel">
+					<CalendarDatePicker SelectedDate="{Binding Date}"
+										IsEnabled="True"
+										Background="{x:Null}">
+					</CalendarDatePicker>
+				</DataTemplate>
+				<DataTemplate x:Key="EditCell" DataType="m:TableCatchModel">
+					<Grid ColumnDefinitions="*, *, *">
+						<Button
+							Grid.Column="0"
+							Classes="edit"
+							IsEnabled="{Binding IsDirty}"
+							Command="{Binding #CatchTable.((vm:CatchTableViewModel)DataContext).SaveItemChanges}"
+							CommandParameter="{Binding TableID}">
+							<PathIcon
+								Name="EditCellSaveIcon"
+								Data="{DynamicResource save_regular}" />
+						</Button>
+						<Button
+							Grid.Column="1"
+							Classes="edit"
+							IsEnabled="{Binding IsDirty}"
+							Command="{Binding #CatchTable.((vm:CatchTableViewModel)DataContext).DiscardItemChanges}"
+							CommandParameter="{Binding TableID}">
+							<PathIcon
+								Name="DiscardChangesIcon"
+								Data="{DynamicResource dismiss_regular}" />
+						</Button>
+						<Button
+							Grid.Column="2"
+							Command="{Binding #CatchTable.((vm:CatchTableViewModel)DataContext).DeleteItem}"
+							CommandParameter="{Binding TableID}">
+							<PathIcon Data="{DynamicResource delete_regular}" />
+						</Button>
+					</Grid>
+				</DataTemplate>
+			</TreeDataGrid.Resources>
+		</TreeDataGrid>
+	</Grid>
 </UserControl>

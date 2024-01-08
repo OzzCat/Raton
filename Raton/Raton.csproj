@@ -50,8 +50,9 @@
 
   <ItemGroup>
     <Folder Include="Models\SettingsModels\" />
+    <Folder Include="Tables\Dialogs\ViewModels\" />
+    <Folder Include="Tables\Dialogs\Views\" />
     <Folder Include="Tables\ViewModels\Dialogs\" />
     <Folder Include="Tables\ViewModels\Templates\" />
-    <Folder Include="Tables\Views\Dialogs\" />
   </ItemGroup>
 </Project>

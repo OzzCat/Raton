@@ -2,24 +2,21 @@
 using DynamicData;
 using Raton.Services.DbServices;
 using Raton.Tables.Models;
-using Raton.Views;
 using ReactiveUI;
-using System.Collections.ObjectModel;
-using System.Reactive;
 using Raton.Tables.Templates.ViewModels;
 using Avalonia.Controls.Models.TreeDataGrid;
 using MsBox.Avalonia.Enums;
 using MsBox.Avalonia;
 using System;
 using System.Reactive.Linq;
-using System.Reflection.PortableExecutable;
+using Raton.Models.DbModels;
 
 namespace Raton.Tables.ViewModels
 {
     public class SeriesTableViewModel : BaseTableViewModel<TableSeriesModel>
     {
         #region Headers
-        CustomHeader NameHeader = new CustomHeader("Series Name");
+        CustomHeader IDHeader = new CustomHeader("Series ID");
         CustomHeader CommentHeader = new CustomHeader("Comment");
         #endregion
 
@@ -44,12 +41,14 @@ namespace Raton.Tables.ViewModels
         {
             _seriesService = seriesService;
 
+            NewItem = new TableSeriesModel();
+
             Observable.Start(() => {
                 UpdateView();
             }, RxApp.TaskpoolScheduler);
 
             #region Filtering
-            var filterNamePredicate = this.WhenAnyValue(x => x.NameHeader.SearchText)
+            var filterNamePredicate = this.WhenAnyValue(x => x.IDHeader.SearchText)
                          .DistinctUntilChanged()
                          .Select(NameFilter);
 
@@ -98,7 +97,7 @@ namespace Raton.Tables.ViewModels
             ItemsTree.Columns.Insert(
                 0,
                 new TextColumn<TableSeriesModel, string>(
-                        NameHeader,
+                        IDHeader,
                         x => x.ID,
                         (r, v) => r.ID = v ?? string.Empty,
                         GridLength.Star)
@@ -130,7 +129,7 @@ namespace Raton.Tables.ViewModels
                if (string.IsNullOrEmpty(serie.ID))
                {
                    var box = MessageBoxManager
-                       .GetMessageBoxStandard("Error", "Series name can't be empty",
+                       .GetMessageBoxStandard("Error", "Series ID can't be empty",
                        ButtonEnum.Ok);
 
                    await box.ShowWindowAsync();
@@ -160,6 +159,51 @@ namespace Raton.Tables.ViewModels
                _seriesService.Update(dbSerie);
 
                serie.IsDirty = false;
+           };
+
+        protected override Action<bool> AddItem =>
+           async (bool DiscardEditingValues) =>
+           {
+               if (string.IsNullOrEmpty(NewItem.ID))
+               {
+                   var box = MessageBoxManager
+                       .GetMessageBoxStandard("Error", "Series ID can't be empty",
+                       ButtonEnum.Ok);
+
+                   await box.ShowWindowAsync();
+
+                   return;
+               }
+
+               var testUnique = _seriesService.GetByID(NewItem.ID);
+
+               if (testUnique is not null)
+               {
+                   var boxUnique = MessageBoxManager
+                       .GetMessageBoxStandard("Error", "Series with the same ID already exists",
+                       ButtonEnum.Ok);
+
+                   await boxUnique.ShowWindowAsync();
+                   return;
+               }
+
+
+               var dbSerie = new SeriesModel
+               {
+                   ID = NewItem.ID,
+                   ColorA = NewItem.ItemColor.A,
+                   ColorR = NewItem.ItemColor.R,
+                   ColorG = NewItem.ItemColor.G,
+                   ColorB = NewItem.ItemColor.B,
+                   Comment = NewItem.Comment
+               };
+
+               _seriesService.Add(dbSerie);
+
+               _items.AddOrUpdate(new TableSeriesModel(dbSerie));
+
+               if (DiscardEditingValues)
+                   NewItem = new TableSeriesModel();
            };
 
         protected override Action<int> DiscardItemChanges =>

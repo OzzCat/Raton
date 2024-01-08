@@ -4,16 +4,13 @@ using DynamicData;
 using MsBox.Avalonia.Enums;
 using MsBox.Avalonia;
 using Raton.Services.DbServices;
-using Raton.Views;
 using ReactiveUI;
 using System;
-using System.Collections.ObjectModel;
-using System.Reactive;
 using System.Reactive.Linq;
 using Raton.Tables.Models;
 using Raton.Tables.Templates.ViewModels;
 using System.Globalization;
-using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
+using Raton.Models.DbModels;
 
 namespace Raton.Tables.ViewModels
 {
@@ -57,6 +54,8 @@ namespace Raton.Tables.ViewModels
         public PointTableViewModel(IScreen screen, IPointService pointService) : base(screen)
         {
             _pointService = pointService;
+
+            NewItem = new TablePointModel();
 
             Observable.Start(() => {
                 UpdateView();
@@ -176,27 +175,27 @@ namespace Raton.Tables.ViewModels
                 }
                 double latitude = 0;
                 double longitude = 0;
-                if (!double.TryParse(point.Latitude,
+                if (!double.TryParse(point.Latitude.Replace(',', '.'),
                     NumberStyles.AllowDecimalPoint
                     | NumberStyles.AllowLeadingSign,
                     CultureInfo.InvariantCulture, out latitude)
                 || latitude > 90 || latitude < -90)
                 {
                     var boxLat = MessageBoxManager
-                        .GetMessageBoxStandard("Error", "Point " + tableID + " Latitude is in the wrong format",
+                        .GetMessageBoxStandard("Error", "Point " + point.ID + " Latitude is in the wrong format",
                         ButtonEnum.Ok);
 
                     await boxLat.ShowWindowAsync();
                     return;
                 }
-                if (!double.TryParse(point.Longitude,
+                if (!double.TryParse(point.Longitude.Replace(',', '.'),
                     NumberStyles.AllowDecimalPoint
                     | NumberStyles.AllowLeadingSign,
                     CultureInfo.InvariantCulture, out longitude)
                 || longitude > 180 || longitude < -180)
                 {
                     var boxLon = MessageBoxManager
-                        .GetMessageBoxStandard("Error", "Point " + tableID + " Longitude is in the wrong format",
+                        .GetMessageBoxStandard("Error", "Point " + point.ID + " Longitude is in the wrong format",
                         ButtonEnum.Ok);
 
                     await boxLon.ShowWindowAsync();
@@ -239,6 +238,76 @@ namespace Raton.Tables.ViewModels
                     return;
                 }
                 _items.AddOrUpdate(new TablePointModel(dbPoint));
+            };
+
+        protected override Action<bool> AddItem =>
+            async (bool DiscardEditingValues) =>
+            {
+                if (string.IsNullOrEmpty(NewItem.ID))
+                {
+                    var box = MessageBoxManager
+                        .GetMessageBoxStandard("Error", "Point ID can't be empty",
+                        ButtonEnum.Ok);
+
+                    await box.ShowWindowAsync();
+
+                    return;
+                }
+                double latitude = 0;
+                double longitude = 0;
+                if (!double.TryParse(NewItem.Latitude.Replace(',', '.'),
+                    NumberStyles.AllowDecimalPoint
+                    | NumberStyles.AllowLeadingSign,
+                    CultureInfo.InvariantCulture, out latitude)
+                || latitude > 90 || latitude < -90)
+                {
+                    var boxLat = MessageBoxManager
+                        .GetMessageBoxStandard("Error", "New Point Latitude is in the wrong format",
+                        ButtonEnum.Ok);
+
+                    await boxLat.ShowWindowAsync();
+                    return;
+                }
+                if (!double.TryParse(NewItem.Longitude.Replace(',', '.'),
+                    NumberStyles.AllowDecimalPoint
+                    | NumberStyles.AllowLeadingSign,
+                    CultureInfo.InvariantCulture, out longitude)
+                || longitude > 180 || longitude < -180)
+                {
+                    var boxLon = MessageBoxManager
+                        .GetMessageBoxStandard("Error", "New Point Longitude is in the wrong format",
+                        ButtonEnum.Ok);
+
+                    await boxLon.ShowWindowAsync();
+                    return;
+                }
+
+                var testUnique = _pointService.GetByID(NewItem.ID);
+
+                if (testUnique is not null)
+                {
+                    var boxUnique = MessageBoxManager
+                        .GetMessageBoxStandard("Error", "Point with the same Name already exists",
+                        ButtonEnum.Ok);
+
+                    await boxUnique.ShowWindowAsync();
+                    return;
+                }
+
+                var dbPoint = new PointModel
+                {
+                    ID = NewItem.ID,
+                    Latitude = latitude,
+                    Longitude = longitude,
+                    Comment = NewItem.Comment
+                };
+
+                _pointService.Add(dbPoint);
+
+                _items.AddOrUpdate(new TablePointModel(dbPoint));
+
+                if (DiscardEditingValues)
+                    NewItem = new TablePointModel();
             };
 
         protected override Action<int> DeleteItem =>

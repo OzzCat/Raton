@@ -15,7 +15,8 @@ using Raton.Tables.Templates.ViewModels;
 using System.Collections.Generic;
 using System.Linq;
 using Raton.Models.DbModels.Enums;
-using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Raton.Models.DbModels;
 
 namespace Raton.Tables.ViewModels
 {
@@ -59,6 +60,8 @@ namespace Raton.Tables.ViewModels
         public AnimalTableViewModel(IScreen screen, IAnimalService animalService) : base(screen)
         {
             _animalService = animalService;
+
+            NewItem = new TableAnimalModel();
 
             Observable.Start(() => {
                 UpdateView();
@@ -126,7 +129,7 @@ namespace Raton.Tables.ViewModels
                         IDHeader,
                         x => x.ID,
                         (r, v) => r.ID = v ?? string.Empty,
-                        GridLength.Star)
+                        new GridLength(2, GridUnitType.Star))
                 );
             ItemsTree.Columns.Insert(
                 1,
@@ -193,6 +196,46 @@ namespace Raton.Tables.ViewModels
                 return;
             }
             _items.AddOrUpdate(new TableAnimalModel(dbAnimal));
+        };
+
+        protected override Action<bool> AddItem =>
+        async (bool DiscardEditingValues) =>
+        {
+            if (string.IsNullOrEmpty(NewItem.ID))
+            {
+                var box = MessageBoxManager
+                    .GetMessageBoxStandard("Error", "Animal ID can't be empty",
+                    ButtonEnum.Ok);
+
+                await box.ShowWindowAsync();
+                return;
+            }
+
+            var testUnique = _animalService.GetByID(NewItem.ID);
+
+            if (testUnique is not null)
+            {
+                var boxUnique = MessageBoxManager
+                    .GetMessageBoxStandard("Error", "Animal with the same ID already exists",
+                    ButtonEnum.Ok);
+
+                await boxUnique.ShowWindowAsync();
+                return;
+            }
+
+            var dbAnimal = new AnimalModel
+            {
+                ID = NewItem.ID,
+                Sex = SexEnumClass.ConvertStringToSexEnum(NewItem.Sex),
+                Comment = NewItem.Comment
+            };
+
+            _animalService.Add(dbAnimal);
+
+            _items.AddOrUpdate(new TableAnimalModel(dbAnimal));
+
+            if (DiscardEditingValues)
+                NewItem = new TableAnimalModel();
         };
 
         protected override Action<int> DeleteItem =>

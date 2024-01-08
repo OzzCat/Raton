@@ -47,5 +47,15 @@ namespace Raton.Tables.Models
             _comment = pointModel.Comment ?? string.Empty;
             _isDirty = false;
         }
+
+        public TablePointModel()
+        {
+            TableID = -1;
+            _id = string.Empty;
+            _latitude = string.Empty;
+            _longitude = string.Empty;
+            _comment = string.Empty;
+            _isDirty = false;
+        }
     }
 }

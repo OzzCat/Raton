@@ -1,14 +1,23 @@
 using Avalonia;
 using Avalonia.Controls.Primitives;
-using Raton.Tables.Models;
-using ReactiveUI;
-using System.Reactive;
 using System.Windows.Input;
 
 namespace Raton.Tables.Templates.Views;
 
 public class ButtonHeaderTemplate : TemplatedControl
 {
+
+    public static readonly StyledProperty<bool> TemplateIsAddPanelVisibleProperty =
+        AvaloniaProperty.Register<ButtonHeaderTemplate, bool>(nameof(TemplateIsAddPanelVisible));
+
+    public bool TemplateIsAddPanelVisible
+    {
+        get => this.GetValue(TemplateIsAddPanelVisibleProperty);
+        set => SetValue(TemplateIsAddPanelVisibleProperty, value);
+    }
+
+
+
     public static readonly StyledProperty<ICommand> SaveChangesCommandProperty =
         AvaloniaProperty.Register<ButtonHeaderTemplate, ICommand>(nameof(SaveChangesCommandProperty));
 
@@ -27,12 +36,12 @@ public class ButtonHeaderTemplate : TemplatedControl
         set => SetValue(DiscardChangesCommandProperty, value);
     }
 
-    public static readonly StyledProperty<ReactiveCommand<ITableModel?, Unit>> AddItemTemplateCommandProperty =
-        AvaloniaProperty.Register<ButtonHeaderTemplate, ReactiveCommand<ITableModel?, Unit>>(nameof(AddItemTemplateCommandProperty));
+    public static readonly StyledProperty<ICommand> ShowOrHideAddPanelCommandProperty =
+        AvaloniaProperty.Register<ButtonHeaderTemplate, ICommand>(nameof(ShowOrHideAddPanelCommandProperty));
 
-    public ReactiveCommand<ITableModel?, Unit> AddItemTemplateCommand
+    public ICommand ShowOrHideAddPanelCommand
     {
-        get => this.GetValue(AddItemTemplateCommandProperty);
-        set => SetValue(AddItemTemplateCommandProperty, value);
+        get => this.GetValue(ShowOrHideAddPanelCommandProperty);
+        set => SetValue(ShowOrHideAddPanelCommandProperty, value);
     }
 }

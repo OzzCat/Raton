@@ -40,19 +40,29 @@
 					  Height="30"
 					  Data="{DynamicResource dismiss_circle_regular}"/>
 			  </Button>
-			  <Button
+			  <ToggleButton
 				  Grid.Column="2"
 				  Margin="0, 5, 0, 5"
 				  Background="Transparent"
-				  ToolTip.Tip="Add new animal"
-				  Command="{TemplateBinding AddItemTemplateCommand}">
+				  ToolTip.Tip="Show Add panel"
+				  IsChecked="{TemplateBinding TemplateIsAddPanelVisible}"
+				  Command="{TemplateBinding ShowOrHideAddPanelCommand}">
 				  <PathIcon
 					  Foreground="White"
-					  Name="AddIcon"
+					  Name="ChangeAddVisibilityIcon"
 					  Width="30"
 					  Height="30"
 					  Data="{DynamicResource add_circle_regular}"/>
-			  </Button>
+				  <ToggleButton.Styles>
+					  <Style Selector=":checked PathIcon#ChangeAddVisibilityIcon">
+						  <Setter Property="Data" Value="{DynamicResource arrow_down_right_circle_regular}" />
+						  <Setter Property="Foreground" Value="White"/>
+						  <Setter Property="Width" Value="30"/>
+						  <Setter Property="Height" Value="30"/>
+						  <Setter Property="ToolTip.Tip" Value="Hide Add panel" />
+					  </Style>
+				  </ToggleButton.Styles>
+			  </ToggleButton>
 		  </Grid>
       </ControlTemplate>
     </Setter>

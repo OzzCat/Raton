@@ -1,6 +1,7 @@
 ﻿using Avalonia.Media;
 using Raton.Models.DbModels;
 using ReactiveUI;
+using System;
 
 namespace Raton.Tables.Models
 {
@@ -37,6 +38,16 @@ namespace Raton.Tables.Models
             _id = seriesModel.ID;
             ItemColor = Color.FromArgb(seriesModel.ColorA, seriesModel.ColorR, seriesModel.ColorG, seriesModel.ColorB);
             _comment = seriesModel.Comment ?? string.Empty;
+            _isDirty = false;
+        }
+
+        public TableSeriesModel()
+        {
+            TableID = -1;
+            _id = string.Empty;
+            var rnd = new Random();
+            ItemColor = Color.FromArgb(130, Convert.ToByte(rnd.Next(0, 255)), Convert.ToByte(rnd.Next(0, 255)), Convert.ToByte(rnd.Next(0, 255)));
+            _comment = string.Empty;
             _isDirty = false;
         }
     }

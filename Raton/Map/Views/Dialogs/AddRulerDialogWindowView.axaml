@@ -63,7 +63,7 @@
 				Margin="10">
 			<Button 
 				Content="Add"
-				HorizontalAlignment="Left"
+				HorizontalAlignment="Center"
 				Classes="DialogConfirmButton"
 				IsEnabled="{Binding EnableSaving}"
 				ToolTip.Tip="You must enter the name first"

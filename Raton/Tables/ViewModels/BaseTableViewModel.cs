@@ -1,6 +1,5 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Controls.Models.TreeDataGrid;
-using Avalonia.Media;
 using DynamicData;
 using Raton.Tables.Models;
 using Raton.Views;
@@ -11,7 +10,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
-using System.Windows.Input;
 
 namespace Raton.Tables.ViewModels
 {
@@ -36,9 +34,24 @@ namespace Raton.Tables.ViewModels
         public ReactiveCommand<Unit, Unit> SaveAllChangesCommand { get; }
         public ReactiveCommand<int, Unit> DiscardItemChangesCommand { get; }
         public ReactiveCommand<Unit, Unit> DiscardAllChangesCommand { get; }
-        public ReactiveCommand<ITableModel?, Unit> AddItemCommand { get; }
+        public ReactiveCommand<Unit, Unit> ShowOrHideAddPanelCommand { get; }
+        public ReactiveCommand<bool, Unit> AddItemCommand { get; }
         public ReactiveCommand<int, Unit> DeleteItemCommand { get; }
         #endregion
+
+        private T? _newItem;
+        public T? NewItem
+        {
+            get => _newItem;
+            set => this.RaiseAndSetIfChanged(ref _newItem, value);
+        }
+
+        private bool _isAddPanelVisible;
+        public bool IsAddPanelVisible
+        {
+            get => _isAddPanelVisible;
+            set => this.RaiseAndSetIfChanged(ref _isAddPanelVisible, value);
+        }
 
         public BaseTableViewModel(IScreen screen)
         {
@@ -57,6 +70,8 @@ namespace Raton.Tables.ViewModels
             DiscardAllChangesCommand = ReactiveCommand.CreateFromTask(async () => 
             DiscardAllChanges());
 
+            ShowOrHideAddPanelCommand = ReactiveCommand.Create(ShowOrHideAddPanel);
+
             AddItemCommand = ReactiveCommand.Create(AddItem);
 
             DeleteItemCommand = ReactiveCommand.Create(DeleteItem);
@@ -66,7 +81,8 @@ namespace Raton.Tables.ViewModels
             {
                 SaveChangesCommand = SaveAllChangesCommand,
                 DiscardChangesCommand = DiscardAllChangesCommand,
-                AddItemTemplateCommand = AddItemCommand
+                ShowOrHideAddPanelCommand = ShowOrHideAddPanelCommand,
+                TemplateIsAddPanelVisible = IsAddPanelVisible,
             };
 
             ItemsTree = new FlatTreeDataGridSource<T>(new List<T>())
@@ -79,6 +95,8 @@ namespace Raton.Tables.ViewModels
                         GridLength.Auto)
                 },
             };
+
+            IsAddPanelVisible = false;
         }
 
         protected virtual Action<int> SaveItemChanges =>
@@ -112,8 +130,14 @@ namespace Raton.Tables.ViewModels
             }
         }
 
-        protected virtual Action<ITableModel?> AddItem =>
-            (ITableModel? tModel) =>
+        protected virtual Action ShowOrHideAddPanel =>
+            () =>
+            {
+                IsAddPanelVisible = !IsAddPanelVisible;
+            };
+
+        protected virtual Action<bool> AddItem =>
+            async (bool DiscardEditingValues) =>
             {
                 throw new NotImplementedException();
             };

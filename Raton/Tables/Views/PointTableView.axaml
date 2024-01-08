@@ -9,49 +9,115 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Raton.Tables.Views.PointTableView"
 			 x:DataType="vm:PointTableViewModel">
-	<TreeDataGrid Grid.Row="1"
-					  Source="{Binding ItemsTree}"
-					  Name="PointTable">
-		<TreeDataGrid.DataTemplates>
-			<DataTemplate DataType="templatesvm:CustomHeader">
-				<templates:CustomHeader/>
-			</DataTemplate>
-			<DataTemplate DataType="vm:PointTableViewModel">
-				<templates:ButtonHeaderTemplate />
-			</DataTemplate>
-		</TreeDataGrid.DataTemplates>
-		<TreeDataGrid.Resources>
-			<DataTemplate x:Key="EditCell" DataType="m:TablePointModel">
-				<Grid ColumnDefinitions="*, *, *">
-					<Button
+	<Grid RowDefinitions="Auto, *">
+		<Border
+			Grid.Row="0"
+			IsVisible="{Binding IsAddPanelVisible}">
+			<Grid
+				ColumnDefinitions="*, *">
+				<Grid
+					Grid.Column="1"
+					RowDefinitions="Auto, Auto"
+					ColumnDefinitions="*, *, *, Auto"
+					Margin="5">
+					<TextBox
+						Grid.Row="0"
 						Grid.Column="0"
-						Classes="edit"
-						IsEnabled="{Binding IsDirty}"
-						Command="{Binding #PointTable.((vm:PointTableViewModel)DataContext).SaveItemChangesCommand}"
-						CommandParameter="{Binding TableID}">
-						<PathIcon
-							Name="EditCellSaveIcon"
-							Data="{DynamicResource save_regular}" />
-					</Button>
-					<Button
+						Classes="Required"
+						Watermark="Name"
+						Text="{Binding NewItem.ID}"
+						Margin="0, 0, 0, 5"/>
+					<TextBox
+						Grid.Row="0"
 						Grid.Column="1"
-						Classes="edit"
-						IsEnabled="{Binding IsDirty}"
-						Command="{Binding #PointTable.((vm:PointTableViewModel)DataContext).DiscardItemChangesCommand}"
-						CommandParameter="{Binding TableID}">
+						Classes="Required"
+						Watermark="Latitude"
+						Text="{Binding NewItem.Latitude}"
+						Margin="5, 0, 0, 5"/>
+					<TextBox
+						Grid.Row="0"
+						Grid.Column="2"
+						Classes="Required"
+						Watermark="Longitude"
+						Text="{Binding NewItem.Longitude}"
+						Margin="5, 0, 0, 5"/>
+					<TextBox
+						Grid.Row="1"
+						Grid.Column="0"
+						Grid.ColumnSpan="3"
+						Watermark="Comment"
+						Text="{Binding NewItem.Comment}"/>
+					<Button
+						Grid.Row="0"
+						Grid.Column="3"
+						Margin="10, 0, 0, 5"
+						VerticalAlignment="Center"
+						ToolTip.Tip="Add item and discard changes in constructor"
+						Command="{Binding AddItemCommand}"
+						CommandParameter="{x:True}">
 						<PathIcon
-							Name="DiscardChangesIcon"
-							Data="{DynamicResource dismiss_regular}" />
+							Name="NewItemSaveDiscardChangesIcon"
+							Data="{DynamicResource add_regular}" />
 					</Button>
 					<Button
-						Grid.Column="2"
-						Command="{Binding #PointTable.((vm:PointTableViewModel)DataContext).DeleteItemCommand}"
-						CommandParameter="{Binding TableID}">
-						<PathIcon Data="{DynamicResource delete_regular}" />
+						Grid.Row="1"
+						Grid.Column="3"
+						Margin="10, 0, 0, 0"
+						VerticalAlignment="Center"
+						ToolTip.Tip="Add item and save changes in constructor"
+						Command="{Binding AddItemCommand}"
+						CommandParameter="{x:False}">
+						<PathIcon
+							Name="NewItemSaveIcon"
+							Data="{DynamicResource save_copy_regular}" />
 					</Button>
 				</Grid>
-			</DataTemplate>
-		</TreeDataGrid.Resources>
-	</TreeDataGrid>
+			</Grid>
+		</Border>
 
+		<TreeDataGrid Grid.Row="1"
+					  Source="{Binding ItemsTree}"
+					  Name="PointTable">
+			<TreeDataGrid.DataTemplates>
+				<DataTemplate DataType="templatesvm:CustomHeader">
+					<templates:CustomHeader/>
+				</DataTemplate>
+				<DataTemplate DataType="vm:PointTableViewModel">
+					<templates:ButtonHeaderTemplate />
+				</DataTemplate>
+			</TreeDataGrid.DataTemplates>
+			<TreeDataGrid.Resources>
+				<DataTemplate x:Key="EditCell" DataType="m:TablePointModel">
+					<Grid ColumnDefinitions="*, *, *">
+						<Button
+							Grid.Column="0"
+							Classes="edit"
+							IsEnabled="{Binding IsDirty}"
+							Command="{Binding #PointTable.((vm:PointTableViewModel)DataContext).SaveItemChangesCommand}"
+							CommandParameter="{Binding TableID}">
+							<PathIcon
+								Name="EditCellSaveIcon"
+								Data="{DynamicResource save_regular}" />
+						</Button>
+						<Button
+							Grid.Column="1"
+							Classes="edit"
+							IsEnabled="{Binding IsDirty}"
+							Command="{Binding #PointTable.((vm:PointTableViewModel)DataContext).DiscardItemChangesCommand}"
+							CommandParameter="{Binding TableID}">
+							<PathIcon
+								Name="DiscardChangesIcon"
+								Data="{DynamicResource dismiss_regular}" />
+						</Button>
+						<Button
+							Grid.Column="2"
+							Command="{Binding #PointTable.((vm:PointTableViewModel)DataContext).DeleteItemCommand}"
+							CommandParameter="{Binding TableID}">
+							<PathIcon Data="{DynamicResource delete_regular}" />
+						</Button>
+					</Grid>
+				</DataTemplate>
+			</TreeDataGrid.Resources>
+		</TreeDataGrid>
+	</Grid>
 </UserControl>

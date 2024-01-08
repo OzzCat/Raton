@@ -5,30 +5,27 @@ using MsBox.Avalonia.Enums;
 using MsBox.Avalonia;
 using Raton.Services.DbServices;
 using ReactiveUI;
-using System.Collections.ObjectModel;
 using System.Reactive.Linq;
 using System;
 using Raton.Tables.Templates.ViewModels;
 using System.Collections.Generic;
 using Raton.Tables.Models;
 using DynamicData.Binding;
+using Raton.Models.DbModels;
+using System.Threading.Tasks;
+using System.Threading;
+using System.Linq;
 
 namespace Raton.Tables.ViewModels
 {
     public class CatchTableViewModel : BaseTableViewModel<TableCatchModel>
     {
         #region Collections
-        public SourceList<string> _animals { get; private set; }
-        private readonly ReadOnlyObservableCollection<string> _animalsList;
-        public ReadOnlyObservableCollection<string> AnimalsList => _animalsList;
+        public List<string> AnimalsList { get; private set; }
 
-        public SourceList<string> _points { get; private set; }
-        private readonly ReadOnlyObservableCollection<string> _pointsList;
-        public ReadOnlyObservableCollection<string> PointsList => _pointsList;
+        public List<string> PointsList { get; private set; }
 
-        public SourceList<string> _series { get; private set; }
-        private readonly ReadOnlyObservableCollection<string> _seriesList;
-        public ReadOnlyObservableCollection<string> SeriesList => _seriesList;
+        public List<string> SeriesList { get; private set; }
         #endregion
 
         #region Headers
@@ -109,31 +106,9 @@ namespace Raton.Tables.ViewModels
             _seriesService = seriesService;
             _catchService = catchService;
 
-            _animals = new SourceList<string>();
-            _points = new SourceList<string>();
-            _series = new SourceList<string>();
-
             Observable.Start(() => {
                 UpdateView();
             }, RxApp.TaskpoolScheduler);
-
-            _animals.Connect()
-                .Sort(SortExpressionComparer<string>.Ascending(x => x))
-                .Bind(out _animalsList)
-                .DisposeMany()
-                .Subscribe();
-            
-            _points.Connect()
-                .Sort(SortExpressionComparer<string>.Ascending(x => x))
-                .Bind(out _pointsList)
-                .DisposeMany()
-                .Subscribe();
-            
-            _series.Connect()
-                .Sort(SortExpressionComparer<string>.Ascending(x => x))
-                .Bind(out _seriesList)
-                .DisposeMany()
-                .Subscribe();
 
             #region Filtering
             var filterAnimalPredicate = this.WhenAnyValue(x => x.AnimalHeader.SearchText)
@@ -210,6 +185,8 @@ namespace Raton.Tables.ViewModels
             #endregion
 
             ItemsTree.Items = _itemsList;
+
+            
 
             #region Setup Columns
             ItemsTree.Columns.Insert(
@@ -341,6 +318,123 @@ namespace Raton.Tables.ViewModels
                 _items.AddOrUpdate(new TableCatchModel(dbCatch));
             };
 
+        protected override Action ShowOrHideAddPanel =>
+            () =>
+            {
+                if (NewItem is null)
+                {
+                    NewItem = new TableCatchModel();
+                }
+
+                IsAddPanelVisible = !IsAddPanelVisible;
+            };
+        protected override Action<bool> AddItem =>
+            async (bool DiscardEditingValues) =>
+            {
+                #region Check Animal
+                if (string.IsNullOrEmpty(NewItem.Animal))
+                {
+                    var animalBox = MessageBoxManager
+                        .GetMessageBoxStandard("Error", "Animal ID can't be empty",
+                        ButtonEnum.Ok);
+
+                    await animalBox.ShowWindowAsync();
+
+                    return;
+                }
+                var dbAnimal = _animalService.GetByID(NewItem.Animal);
+                if (dbAnimal is null)
+                {
+                    var animalBox = MessageBoxManager
+                        .GetMessageBoxStandard("Error", "Animal was already deleted from the database",
+                        ButtonEnum.Ok);
+
+                    await animalBox.ShowWindowAsync();
+
+                    return;
+                }
+                #endregion
+
+                #region Check Point
+                if (string.IsNullOrEmpty(NewItem.Point))
+                {
+                    var pointBox = MessageBoxManager
+                        .GetMessageBoxStandard("Error", "Point ID can't be empty",
+                        ButtonEnum.Ok);
+
+                    await pointBox.ShowWindowAsync();
+
+                    return;
+                }
+                var dbPoint = _pointService.GetByID(NewItem.Point);
+                if (dbPoint is null)
+                {
+                    var pointBox = MessageBoxManager
+                        .GetMessageBoxStandard("Error", "Point was already deleted from the database",
+                        ButtonEnum.Ok);
+
+                    await pointBox.ShowWindowAsync();
+
+                    return;
+                }
+                #endregion
+
+                #region Check Series
+                if (string.IsNullOrEmpty(NewItem.Series))
+                {
+                    var seriesBox = MessageBoxManager
+                        .GetMessageBoxStandard("Error", "Seies ID can't be empty",
+                        ButtonEnum.Ok);
+
+                    await seriesBox.ShowWindowAsync();
+
+                    return;
+                }
+                var dbSeries = _seriesService.GetByID(NewItem.Series);
+                if (dbSeries == null)
+                {
+                    var seriesBox = MessageBoxManager
+                        .GetMessageBoxStandard("Error", "Series was already deleted from the database",
+                        ButtonEnum.Ok);
+
+                    await seriesBox.ShowWindowAsync();
+
+                    return;
+                }
+                #endregion
+
+                #region Check Unique
+                var testUnique = _catchService.GetByAnimalPointSeriesAndDate(
+                    dbAnimal.TableID, dbPoint.TableID, dbSeries.TableID, NewItem.Date);
+
+                if (testUnique is not null)
+                {
+                    var boxUnique = MessageBoxManager
+                        .GetMessageBoxStandard("Error", "Catch with the same parameters already exists",
+                        ButtonEnum.Ok);
+
+                    await boxUnique.ShowWindowAsync();
+                    return;
+                }
+                #endregion
+
+                var dbCatch = new CatchModel
+                {
+                    AnimalTableID = dbAnimal.TableID,
+                    PointTableID = dbPoint.TableID,
+                    SeriesTableID = dbSeries.TableID,
+                    Date = NewItem.Date,
+                    Comment = NewItem.Comment
+                };
+
+                _catchService.Add(dbCatch);
+
+                _items.AddOrUpdate(new TableCatchModel(dbCatch));
+
+                if (DiscardEditingValues)
+                    NewItem = new TableCatchModel();
+            };
+
         protected override Action<int> DeleteItem =>
             async (int tableID) =>
             {
@@ -365,7 +459,7 @@ namespace Raton.Tables.ViewModels
             PopulatePoints();
             PopulateSeries();
 
-            var catchSource = _catchService.GetAllWithIDs();
+            var catchSource = _catchService.GetAllWithParents();
 
             _items.Edit(innerList =>
             {
@@ -373,42 +467,78 @@ namespace Raton.Tables.ViewModels
                 foreach (var cat in catchSource)
                     innerList.AddOrUpdate(new TableCatchModel(cat));
             });
+
+            IsAddPanelVisible = false;
+            NewItem = null;
         }
 
         private void PopulateAnimals()
         {
             var animalSource = _animalService.GetAll();
 
-            _animals.Edit(innerList =>
+            AnimalsList = new List<string>
             {
-                innerList.Clear();
-                foreach (var animal in animalSource)
-                    innerList.Add(animal.ID);
-            });
+                string.Empty
+            };
+
+            foreach (var animal in animalSource)
+                AnimalsList.Add(animal.ID);
         }
 
         private void PopulatePoints()
         {
-            var pointSource = _pointService.GetAll();
+            var pointsSource = _pointService.GetAll();
 
-            _points.Edit(innerList =>
+            PointsList = new List<string>
             {
-                innerList.Clear();
-                foreach (var point in pointSource)
-                    innerList.Add(point.ID);
-            });
+                string.Empty
+            };
+
+            foreach (var animal in pointsSource)
+                PointsList.Add(animal.ID);
         }
 
         private void PopulateSeries()
         {
             var seriesSource = _seriesService.GetAll();
 
-            _series.Edit(innerList =>
+            SeriesList = new List<string>
             {
-                innerList.Clear();
-                foreach (var series in seriesSource)
-                    innerList.Add(series.ID);
-            });
+                string.Empty
+            };
+
+            foreach (var serie in seriesSource)
+                SeriesList.Add(serie.ID);
         }
+
+        #region ComboBoxes Population Functions
+        private static bool StringContains(string str, string? query)
+        {
+            if (query == null) return false;
+            return str.IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+        public Func<string, CancellationToken, Task<IEnumerable<object>>> PopulateAnimalsAsync =>
+            async (string query, CancellationToken token) =>
+            {
+                var res = AnimalsList.Where(x => StringContains(x, query)).ToList();
+
+                return res;
+            };
+        public Func<string, CancellationToken, Task<IEnumerable<object>>> PopulatePointsAsync =>
+            async (string query, CancellationToken token) =>
+            {
+                var res = PointsList.Where(x => StringContains(x, query)).ToList();
+
+                return res;
+            };
+        public Func<string, CancellationToken, Task<IEnumerable<object>>> PopulateSeriesAsync =>
+            async (string query, CancellationToken token) =>
+            {
+                var res = SeriesList.Where(x => StringContains(x, query)).ToList();
+
+                return res;
+            };
+        #endregion
     }
 }
