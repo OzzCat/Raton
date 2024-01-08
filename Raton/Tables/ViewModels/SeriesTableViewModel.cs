@@ -126,17 +126,21 @@ namespace Raton.Tables.ViewModels
            async (int tableID) =>
            {
                var serie = _items.Lookup(tableID).Value;
+
+               #region Validate Input
                if (string.IsNullOrEmpty(serie.ID))
                {
                    var box = MessageBoxManager
                        .GetMessageBoxStandard("Error", "Series ID can't be empty",
                        ButtonEnum.Ok);
-
                    await box.ShowWindowAsync();
-
                    return;
                }
+               #endregion
+
                var dbSerie = _seriesService.GetByID(tableID);
+
+               #region Check Series Existance
                if (dbSerie == null)
                {
                    var box = MessageBoxManager
@@ -147,7 +151,19 @@ namespace Raton.Tables.ViewModels
 
                    return;
                }
+               #endregion
 
+               #region Check Unique
+               var testUnique = _seriesService.GetByID(serie.ID);
+               if (testUnique is not null)
+               {
+                   var boxUnique = MessageBoxManager
+                       .GetMessageBoxStandard("Error", "Series with the same ID already exists",
+                       ButtonEnum.Ok);
+                   await boxUnique.ShowWindowAsync();
+                   return;
+               }
+               #endregion
 
                dbSerie.ID = serie.ID;
                dbSerie.ColorA = serie.ItemColor.A;
@@ -164,29 +180,28 @@ namespace Raton.Tables.ViewModels
         protected override Action<bool> AddItem =>
            async (bool DiscardEditingValues) =>
            {
+               #region Validate Input
                if (string.IsNullOrEmpty(NewItem.ID))
                {
                    var box = MessageBoxManager
                        .GetMessageBoxStandard("Error", "Series ID can't be empty",
                        ButtonEnum.Ok);
-
                    await box.ShowWindowAsync();
-
                    return;
                }
+               #endregion
 
+               #region Check Unique
                var testUnique = _seriesService.GetByID(NewItem.ID);
-
                if (testUnique is not null)
                {
                    var boxUnique = MessageBoxManager
                        .GetMessageBoxStandard("Error", "Series with the same ID already exists",
                        ButtonEnum.Ok);
-
                    await boxUnique.ShowWindowAsync();
                    return;
                }
-
+               #endregion
 
                var dbSerie = new SeriesModel
                {

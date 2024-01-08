@@ -163,6 +163,8 @@ namespace Raton.Tables.ViewModels
             async (int tableID) =>
             {
                 var point = _items.Lookup(tableID).Value;
+
+                #region Validate Input
                 if (string.IsNullOrEmpty(point.ID))
                 {
                     var box = MessageBoxManager
@@ -201,7 +203,11 @@ namespace Raton.Tables.ViewModels
                     await boxLon.ShowWindowAsync();
                     return;
                 }
+                #endregion
+
                 var dbPoint = _pointService.GetByID(tableID);
+
+                #region Check Point Existance
                 if (dbPoint == null)
                 {
                     var box = MessageBoxManager
@@ -212,6 +218,21 @@ namespace Raton.Tables.ViewModels
 
                     return;
                 }
+                #endregion
+
+                #region Check Unique
+                var testUnique = _pointService.GetByID(point.ID);
+                if (testUnique is not null)
+                {
+                    var boxUnique = MessageBoxManager
+                        .GetMessageBoxStandard("Error", "Point with the same Name already exists",
+                        ButtonEnum.Ok);
+
+                    await boxUnique.ShowWindowAsync();
+                    return;
+                }
+                #endregion
+
                 dbPoint.ID = point.ID;
                 dbPoint.Latitude = latitude;
                 dbPoint.Longitude = longitude;
@@ -243,6 +264,10 @@ namespace Raton.Tables.ViewModels
         protected override Action<bool> AddItem =>
             async (bool DiscardEditingValues) =>
             {
+                #region Validate Input
+                if (NewItem is null)
+                    throw new ApplicationException();
+
                 if (string.IsNullOrEmpty(NewItem.ID))
                 {
                     var box = MessageBoxManager
@@ -281,9 +306,10 @@ namespace Raton.Tables.ViewModels
                     await boxLon.ShowWindowAsync();
                     return;
                 }
+                #endregion
 
+                #region Check Unique
                 var testUnique = _pointService.GetByID(NewItem.ID);
-
                 if (testUnique is not null)
                 {
                     var boxUnique = MessageBoxManager
@@ -293,6 +319,7 @@ namespace Raton.Tables.ViewModels
                     await boxUnique.ShowWindowAsync();
                     return;
                 }
+                #endregion
 
                 var dbPoint = new PointModel
                 {

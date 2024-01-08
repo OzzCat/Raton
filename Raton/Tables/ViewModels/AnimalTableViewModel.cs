@@ -144,6 +144,8 @@ namespace Raton.Tables.ViewModels
         async (int tableID) =>
         {
             var animal = _items.Lookup(tableID).Value;
+
+            #region Validate Input
             if (string.IsNullOrEmpty(animal.ID))
             {
                 var box = MessageBoxManager
@@ -154,7 +156,11 @@ namespace Raton.Tables.ViewModels
 
                 return;
             }
+            #endregion
+
             var dbAnimal = _animalService.GetByID(tableID);
+            
+            #region Check Animal Existance
             if (dbAnimal == null)
             {
                 var box = MessageBoxManager
@@ -165,6 +171,21 @@ namespace Raton.Tables.ViewModels
 
                 return;
             }
+            #endregion
+
+            #region Check Unique
+            var testUnique = _animalService.GetByID(animal.ID);
+
+            if (testUnique is not null)
+            {
+                var boxUnique = MessageBoxManager
+                    .GetMessageBoxStandard("Error", "Animal with the same ID already exists",
+                    ButtonEnum.Ok);
+
+                await boxUnique.ShowWindowAsync();
+                return;
+            }
+            #endregion
 
             dbAnimal.ID = animal.ID;
             dbAnimal.Sex = SexEnumClass.ConvertStringToSexEnum(animal.Sex);
@@ -195,6 +216,10 @@ namespace Raton.Tables.ViewModels
         protected override Action<bool> AddItem =>
         async (bool DiscardEditingValues) =>
         {
+            #region Validate Input
+            if (NewItem is null)
+                throw new ApplicationException();
+
             if (string.IsNullOrEmpty(NewItem.ID))
             {
                 var box = MessageBoxManager
@@ -204,7 +229,9 @@ namespace Raton.Tables.ViewModels
                 await box.ShowWindowAsync();
                 return;
             }
+            #endregion
 
+            #region Check Unique
             var testUnique = _animalService.GetByID(NewItem.ID);
 
             if (testUnique is not null)
@@ -216,6 +243,7 @@ namespace Raton.Tables.ViewModels
                 await boxUnique.ShowWindowAsync();
                 return;
             }
+            #endregion
 
             var dbAnimal = new AnimalModel
             {

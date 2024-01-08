@@ -243,6 +243,43 @@ namespace Raton.Tables.ViewModels
             async (int tableID) =>
             {
                 var cat = _items.Lookup(tableID).Value;
+
+                #region Validate Input
+                if (string.IsNullOrEmpty(cat.Animal))
+                {
+                    var animalBox = MessageBoxManager
+                        .GetMessageBoxStandard("Error", "Animal ID can't be empty",
+                        ButtonEnum.Ok);
+
+                    await animalBox.ShowWindowAsync();
+
+                    return;
+                }
+
+                if (string.IsNullOrEmpty(cat.Point))
+                {
+                    var pointBox = MessageBoxManager
+                        .GetMessageBoxStandard("Error", "Point ID can't be empty",
+                        ButtonEnum.Ok);
+
+                    await pointBox.ShowWindowAsync();
+
+                    return;
+                }
+
+                if (string.IsNullOrEmpty(cat.Series))
+                {
+                    var seriesBox = MessageBoxManager
+                        .GetMessageBoxStandard("Error", "Seies ID can't be empty",
+                        ButtonEnum.Ok);
+
+                    await seriesBox.ShowWindowAsync();
+
+                    return;
+                }
+                #endregion
+
+                #region Check Catch Existance
                 var dbCatch = _catchService.GetByID(tableID);
                 if (dbCatch is null)
                 {
@@ -254,7 +291,9 @@ namespace Raton.Tables.ViewModels
 
                     return;
                 }
+                #endregion
 
+                #region Check Animal Existance
                 var dbAnimal = _animalService.GetByID(cat.Animal);
                 if (dbAnimal is null)
                 {
@@ -266,7 +305,9 @@ namespace Raton.Tables.ViewModels
 
                     return;
                 }
+                #endregion
 
+                #region Check Point Existance
                 var dbPoint = _pointService.GetByID(cat.Point);
                 if (dbPoint is null)
                 {
@@ -278,7 +319,9 @@ namespace Raton.Tables.ViewModels
 
                     return;
                 }
+                #endregion
 
+                #region Check Series Existance
                 var dbSeries = _seriesService.GetByID(cat.Series);
                 if (dbSeries == null)
                 {
@@ -290,6 +333,22 @@ namespace Raton.Tables.ViewModels
 
                     return;
                 }
+                #endregion
+
+                #region Check Unique
+                var testUnique = _catchService.GetByAnimalPointSeriesAndDate(
+                    dbAnimal.TableID, dbPoint.TableID, dbSeries.TableID, NewItem.Date);
+
+                if (testUnique is not null)
+                {
+                    var boxUnique = MessageBoxManager
+                        .GetMessageBoxStandard("Error", "Catch with the same parameters already exists",
+                        ButtonEnum.Ok);
+
+                    await boxUnique.ShowWindowAsync();
+                    return;
+                }
+                #endregion
 
                 dbCatch.AnimalTableID = dbAnimal.TableID;
                 dbCatch.PointTableID = dbPoint.TableID;
@@ -332,7 +391,7 @@ namespace Raton.Tables.ViewModels
         protected override Action<bool> AddItem =>
             async (bool DiscardEditingValues) =>
             {
-                #region Check Animal,
+                #region Validate Input
                 if (NewItem is null)
                     throw new ApplicationException();
 
@@ -346,6 +405,31 @@ namespace Raton.Tables.ViewModels
 
                     return;
                 }
+
+                if (string.IsNullOrEmpty(NewItem.Point))
+                {
+                    var pointBox = MessageBoxManager
+                        .GetMessageBoxStandard("Error", "Point ID can't be empty",
+                        ButtonEnum.Ok);
+
+                    await pointBox.ShowWindowAsync();
+
+                    return;
+                }
+
+                if (string.IsNullOrEmpty(NewItem.Series))
+                {
+                    var seriesBox = MessageBoxManager
+                        .GetMessageBoxStandard("Error", "Seies ID can't be empty",
+                        ButtonEnum.Ok);
+
+                    await seriesBox.ShowWindowAsync();
+
+                    return;
+                }
+                #endregion
+
+                #region Check Animal Existance
                 var dbAnimal = _animalService.GetByID(NewItem.Animal);
                 if (dbAnimal is null)
                 {
@@ -359,17 +443,7 @@ namespace Raton.Tables.ViewModels
                 }
                 #endregion
 
-                #region Check Point
-                if (string.IsNullOrEmpty(NewItem.Point))
-                {
-                    var pointBox = MessageBoxManager
-                        .GetMessageBoxStandard("Error", "Point ID can't be empty",
-                        ButtonEnum.Ok);
-
-                    await pointBox.ShowWindowAsync();
-
-                    return;
-                }
+                #region Check Point Existance
                 var dbPoint = _pointService.GetByID(NewItem.Point);
                 if (dbPoint is null)
                 {
@@ -383,17 +457,7 @@ namespace Raton.Tables.ViewModels
                 }
                 #endregion
 
-                #region Check Series
-                if (string.IsNullOrEmpty(NewItem.Series))
-                {
-                    var seriesBox = MessageBoxManager
-                        .GetMessageBoxStandard("Error", "Seies ID can't be empty",
-                        ButtonEnum.Ok);
-
-                    await seriesBox.ShowWindowAsync();
-
-                    return;
-                }
+                #region Check Series Existance
                 var dbSeries = _seriesService.GetByID(NewItem.Series);
                 if (dbSeries == null)
                 {

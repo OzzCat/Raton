@@ -15,7 +15,7 @@ namespace Raton.Import
 {
     public static class Excel
     {
-        public static async Task<List<string>> ImportXlsx(
+        public static async Task<string> ImportXlsx(
             string filePath, IAnimalService animalService,
             IPointService pointService, ICatchService catchService, ISeriesService seriesService)
         {
@@ -39,8 +39,7 @@ namespace Raton.Import
 
                 if (firstWorksheet == null)
                 {
-                    errorsList.Add("Empty excel workbook");
-                    return errorsList;
+                    return "Empty excel workbook";
                 }
 
                 int line = 2;
@@ -193,6 +192,12 @@ namespace Raton.Import
 
                     catchModel.Date = date;
 
+                    var testUnique = catchService.GetByAnimalPointSeriesAndDate(
+                        animalTableID, pointTableID, seriesTableID, date);
+
+                    if (testUnique is not null)
+                        errorsList.Add("Line " + line.ToString() + " is a duplicate of already existing catch");
+
                     catchService.Add(catchModel);
 
                     catchTableID = catchModel.TableID;
@@ -213,17 +218,7 @@ namespace Raton.Import
 
             var str = string.Empty;
 
-            if (errorsList.Count == 0)
-            {
-                str = "Successfully imported data";
-
-                var box = MessageBoxManager
-                .GetMessageBoxStandard("Import Results", str,
-                ButtonEnum.Ok);
-
-                await box.ShowWindowAsync();
-            }
-            else
+            if (errorsList.Count != 0)
             {
                 str = "Errors occured during data import:\n";
                 foreach (var err in errorsList)
@@ -242,9 +237,13 @@ namespace Raton.Import
                     seriesService.RemoveRangeByPKList(newSeriesList);
                     pointService.RemoveRangeByPKList(newPointList);
                     animalService.RemoveRangeByPKList(newAnimalList);
+
+                    return "Data not changed";
                 }
+
+                return "Updated with previously listed errors";
             }
-            return errorsList;
+            return "Succesfully updated";
         }
     }
 }

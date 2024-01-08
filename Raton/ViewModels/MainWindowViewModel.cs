@@ -71,14 +71,21 @@ namespace Raton.ViewModels
                 {
                     var result = res.First();
                     var filePath = result.Path.LocalPath;
-                    var errorList = await Import.Excel.ImportXlsx(filePath, _animalService, _pointService, _catchService, _seriesService);
+                    var importResult = await Import.Excel.ImportXlsx(filePath, _animalService, _pointService, _catchService, _seriesService);
 
                     if (Router.NavigationStack.Count > 0)
                     {
                         var vm = Router.NavigationStack.Last();
                         if (vm is not null && vm is IUpdatable)
                             (vm as IUpdatable).UpdateView();
-                    }   
+                    }
+
+                    var box = MessageBoxManager
+                        .GetMessageBoxStandard("Import finished",
+                        "Result: " + importResult,
+                        ButtonEnum.Ok);
+
+                    await box.ShowWindowAsync();
                 }
             });
 
