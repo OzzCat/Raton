@@ -31,7 +31,7 @@ namespace Raton.Tables.ViewModels
         CustomHeader AnimalHeader = new("Animal");
         CustomHeader PointHeader = new("Point");
         CustomHeader SeriesHeader = new("Series");
-        CustomHeader DateHeader = new("Date");
+        CustomHeader DateHeader = new("Date and Time");
         CustomHeader CommentHeader = new("Comment");
         #endregion
 
@@ -57,7 +57,8 @@ namespace Raton.Tables.ViewModels
         {
             if (string.IsNullOrEmpty(text)) return cat => true;
 #pragma warning disable CS8602 // Разыменование вероятной пустой ссылки.
-            return cat => cat.Date is not null && cat.Date.ToString().ToLower().Contains(text.ToLower());
+            return cat => cat.Date is not null && (cat.Date.Value.Date.ToString().ToLower().Contains(text.ToLower())
+            || cat.Time.Contains(text.ToLower()));
 #pragma warning restore CS8602 // Разыменование вероятной пустой ссылки.
         }
         Func<TableCatchModel, bool> CommentFilter(string text)
@@ -68,13 +69,68 @@ namespace Raton.Tables.ViewModels
         #endregion
 
         #region Sorting
+        private int AnimalSortAscending(TableCatchModel? x, TableCatchModel? y)
+        {
+            if (x is null || y is null)
+                return Comparer<TableCatchModel>.Default.Compare(x, y);
+            var a = x.Animal;
+            var b = y.Animal;
+            return Comparer<string>.Default.Compare(a, b);
+        }
+
+        private int AnimalSortDescending(TableCatchModel? x, TableCatchModel? y)
+        {
+            if (x is null || y is null)
+                return Comparer<TableCatchModel>.Default.Compare(x, y);
+            var a = x.Animal;
+            var b = y.Animal;
+            return Comparer<string>.Default.Compare(b, a);
+        }
+        private int PointSortAscending(TableCatchModel? x, TableCatchModel? y)
+        {
+            if (x is null || y is null)
+                return Comparer<TableCatchModel>.Default.Compare(x, y);
+            var a = x.Point;
+            var b = y.Point;
+            return Comparer<string>.Default.Compare(a, b);
+        }
+
+        private int PointSortDescending(TableCatchModel? x, TableCatchModel? y)
+        {
+            if (x is null || y is null)
+                return Comparer<TableCatchModel>.Default.Compare(x, y);
+            var a = x.Point;
+            var b = y.Point;
+            return Comparer<string>.Default.Compare(b, a);
+        }
+        private int SeriesSortAscending(TableCatchModel? x, TableCatchModel? y)
+        {
+            if (x is null || y is null)
+                return Comparer<TableCatchModel>.Default.Compare(x, y);
+            var a = x.Series;
+            var b = y.Series;
+            return Comparer<string>.Default.Compare(a, b);
+        }
+
+        private int SeriesSortDescending(TableCatchModel? x, TableCatchModel? y)
+        {
+            if (x is null || y is null)
+                return Comparer<TableCatchModel>.Default.Compare(x, y);
+            var a = x.Series;
+            var b = y.Series;
+            return Comparer<string>.Default.Compare(b, a);
+        }
         private int DateSortAscending(TableCatchModel? x, TableCatchModel? y)
         {
             if (x is null || y is null)
                 return Comparer<TableCatchModel>.Default.Compare(x, y);
             var a = x.Date;
             var b = y.Date;
-            return Comparer<DateTime?>.Default.Compare(a, b);
+            var resD = Comparer<DateTime?>.Default.Compare(a, b);
+            if (resD != 0)
+                return resD;
+            else
+                return Comparer<string?>.Default.Compare(x.Time, y.Time);
         }
 
         private int DateSortDescending(TableCatchModel? x, TableCatchModel? y)
@@ -83,7 +139,11 @@ namespace Raton.Tables.ViewModels
                 return Comparer<TableCatchModel>.Default.Compare(x, y);
             var a = x.Date;
             var b = y.Date;
-            return Comparer<DateTime?>.Default.Compare(b, a);
+            var resD = Comparer<DateTime?>.Default.Compare(b, a);
+            if (resD != 0)
+                return resD;
+            else
+                return Comparer<string?>.Default.Compare(y.Time, x.Time);
         }
         #endregion
 
@@ -179,6 +239,14 @@ namespace Raton.Tables.ViewModels
                 });
 
             _items.Connect()
+                .WhenPropertyChanged(x => x.Time, false)
+                .DistinctUntilChanged()
+                .Subscribe(value =>
+                {
+                    value.Sender.IsDirty = true;
+                });
+
+            _items.Connect()
                 .WhenPropertyChanged(x => x.Comment, false)
                 .DistinctUntilChanged()
                 .Subscribe(value =>
@@ -196,7 +264,12 @@ namespace Raton.Tables.ViewModels
                         AnimalHeader,
                         "AnimalCell",
                         null,
-                        GridLength.Star)
+                        GridLength.Star,
+                        new()
+                        {
+                            CompareAscending = AnimalSortAscending,
+                            CompareDescending = AnimalSortDescending,
+                        })
                 );
             ItemsTree.Columns.Insert(
                 1,
@@ -204,7 +277,12 @@ namespace Raton.Tables.ViewModels
                         PointHeader,
                         "PointCell",
                         null,
-                        GridLength.Star)
+                        new GridLength(2, GridUnitType.Star),
+                        new()
+                        {
+                            CompareAscending = PointSortAscending,
+                            CompareDescending = PointSortDescending,
+                        })
                 );
             ItemsTree.Columns.Insert(
                 2,
@@ -212,7 +290,12 @@ namespace Raton.Tables.ViewModels
                         SeriesHeader,
                         "SeriesCell",
                         null,
-                        GridLength.Star)
+                        GridLength.Star,
+                        new()
+                        {
+                            CompareAscending = SeriesSortAscending,
+                            CompareDescending = SeriesSortDescending,
+                        })
                 );
             ItemsTree.Columns.Insert(
                 3,
@@ -220,7 +303,7 @@ namespace Raton.Tables.ViewModels
                         DateHeader,
                         "DateCell",
                         "DateChangeCell",
-                        GridLength.Star,
+                        new GridLength(2, GridUnitType.Star),
                         new()
                         {
                             CompareAscending = DateSortAscending,
@@ -234,7 +317,7 @@ namespace Raton.Tables.ViewModels
                         CommentHeader,
                         x => x.Comment,
                         (r, v) => r.Comment = v ?? string.Empty,
-                        new GridLength(3, GridUnitType.Star))
+                        new GridLength(2, GridUnitType.Star))
                 );
             #endregion
         }
@@ -282,6 +365,22 @@ namespace Raton.Tables.ViewModels
                 {
                     var seriesBox = MessageBoxManager
                         .GetMessageBoxStandard("Error", "Date can't be empty",
+                        ButtonEnum.Ok);
+
+                    await seriesBox.ShowWindowAsync();
+
+                    return;
+                }
+
+                if (TimeSpan.TryParse(cat.Time, out TimeSpan ts))
+                {
+                    var date = cat.Date.Value;
+                    cat.Date = new DateTime(date.Year, date.Month, date.Day, ts.Hours, ts.Minutes, ts.Seconds);
+                }
+                else
+                {
+                    var seriesBox = MessageBoxManager
+                        .GetMessageBoxStandard("Error", "Time format is incorrect",
                         ButtonEnum.Ok);
 
                     await seriesBox.ShowWindowAsync();
@@ -346,6 +445,8 @@ namespace Raton.Tables.ViewModels
                 }
                 #endregion
 
+                
+
                 #region Check Unique
                 var testUnique = _catchService.GetByAnimalPointSeriesAndDate(
                     dbAnimal.TableID, dbPoint.TableID, dbSeries.TableID, cat.Date.Value);
@@ -399,6 +500,7 @@ namespace Raton.Tables.ViewModels
 
                 IsAddPanelVisible = !IsAddPanelVisible;
             };
+
         protected override Action<bool> AddItem =>
             async (bool DiscardEditingValues) =>
             {
@@ -443,6 +545,22 @@ namespace Raton.Tables.ViewModels
                 {
                     var seriesBox = MessageBoxManager
                         .GetMessageBoxStandard("Error", "Date can't be empty",
+                        ButtonEnum.Ok);
+
+                    await seriesBox.ShowWindowAsync();
+
+                    return;
+                }
+
+                if (TimeSpan.TryParse(NewItem.Time, out TimeSpan ts))
+                {
+                    var date = NewItem.Date.Value;
+                    NewItem.Date = new DateTime(date.Year, date.Month, date.Day, ts.Hours, ts.Minutes, ts.Seconds);
+                }
+                else
+                {
+                    var seriesBox = MessageBoxManager
+                        .GetMessageBoxStandard("Error", "Time format is incorrect",
                         ButtonEnum.Ok);
 
                     await seriesBox.ShowWindowAsync();

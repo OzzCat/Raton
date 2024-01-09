@@ -1,4 +1,5 @@
-﻿using Raton.Models.DbModels;
+﻿using OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime;
+using Raton.Models.DbModels;
 using ReactiveUI;
 using System;
 
@@ -31,6 +32,13 @@ namespace Raton.Tables.Models
             get => _date;
             set { this.RaiseAndSetIfChanged(ref _date, value); }
         }
+        private string? _time;
+        public string? Time
+        {
+            get => _time;
+            set { this.RaiseAndSetIfChanged(ref _time, value); }
+        }
+
         private string _comment;
         public string Comment
         {
@@ -52,6 +60,7 @@ namespace Raton.Tables.Models
             _point = catchModel.Point.ID;
             _series = catchModel.Series.ID;
             _date = catchModel.Date;
+            _time = catchModel.Date.TimeOfDay.ToString("c");
             _comment = catchModel.Comment ?? string.Empty;
             _isDirty = false;
         }
@@ -63,6 +72,7 @@ namespace Raton.Tables.Models
             _point = string.Empty;
             _series = string.Empty;
             _date = null;
+            _time = "00:00:00";
             _comment = string.Empty;
             _isDirty = false;
         }

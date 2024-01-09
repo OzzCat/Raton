@@ -56,18 +56,31 @@
 						ItemsSource="{Binding SeriesList}"
 						AsyncPopulator="{Binding PopulateSeriesAsync}"
 						SelectedItem="{Binding NewItem.Series}"/>
-					<CalendarDatePicker 
+					<Grid 
+						ColumnDefinitions="*, *"
 						Grid.Row="1"
-						Grid.Column="0"
-						HorizontalAlignment="Stretch"
-						VerticalAlignment="Center"
-						Margin="0, 0, 0, 5"
-						SelectedDate="{Binding NewItem.Date}"/>
+						Grid.Column="0"  >
+						<CalendarDatePicker
+							Grid.Column="0"
+							HorizontalAlignment="Stretch"
+							VerticalAlignment="Center"
+							Margin="0, 0, 0, 5"
+							SelectedDate="{Binding NewItem.Date}"/>
+						<MaskedTextBox
+							Grid.Column="1"
+							Margin="5, 0, 5, 5"
+							HorizontalAlignment="Stretch"
+							VerticalContentAlignment="Center"
+							PromptChar="0"
+							Mask="99\:99\:99"
+							Text="{Binding NewItem.Time}"/>
+					</Grid>
+
 					<TextBox
 						Grid.Row="1"
 						Grid.Column="1"
 						Grid.ColumnSpan="2"
-						Margin="5, 0, 0, 5"
+						Margin="0, 0, 0, 5"
 						HorizontalAlignment="Stretch"
 						VerticalAlignment="Stretch"
 						Watermark="Comment"
@@ -135,31 +148,68 @@
 					</AutoCompleteBox>
 				</DataTemplate>
 				<DataTemplate x:Key="DateCell" DataType="m:TableCatchModel">
-					<CalendarDatePicker SelectedDate="{Binding Date}"
-										IsEnabled="False">
-						<CalendarDatePicker.Styles>
-							<Style Selector=":disabled">
-								<Style Selector="^ /template/ Border#Background">
-									<Setter Property="Background" Value="{x:Null}"/>
-									<Setter Property="BorderThickness" Value="0"/>
-								</Style>
-								<Style Selector="^ /template/ Button#PART_Button">
-									<Setter Property="IsVisible" Value="False" />
-								</Style>
-								<Style Selector="^ /template/ TextBox#PART_TextBox:disabled">
-									<Style Selector="^ TextPresenter#PART_TextPresenter:disabled">
+					<Grid ColumnDefinitions="*, *">
+						<CalendarDatePicker 
+							SelectedDate="{Binding Date}"
+							IsEnabled="False"
+							HorizontalAlignment="Left"
+							Grid.Column="0">
+							<CalendarDatePicker.Styles>
+								<Style Selector=":disabled">
+									<Style Selector="^ /template/ Border#Background">
+										<Setter Property="Background" Value="{x:Null}"/>
+										<Setter Property="BorderThickness" Value="0"/>
+									</Style>
+									<Style Selector="^ /template/ Button#PART_Button">
+										<Setter Property="IsVisible" Value="False" />
+									</Style>
+									<Style Selector="^ TextPresenter#PART_TextPresenter">
 										<Setter Property="TextElement.Foreground" Value="Black" />
 									</Style>
 								</Style>
-							</Style>
-						</CalendarDatePicker.Styles>
-					</CalendarDatePicker>
+							</CalendarDatePicker.Styles>
+						</CalendarDatePicker>
+						<MaskedTextBox
+							Grid.Column="1"
+							Mask="99\:99\:99"
+							VerticalContentAlignment="Center"
+							PromptChar="0"
+							HorizontalAlignment="Left"
+							Background="Transparent"
+							IsEnabled="False"
+							Text="{Binding Time}">
+							<MaskedTextBox.Styles>
+								<Style Selector=":disabled">
+									<Style Selector="^ /template/ Border#PART_BorderElement">
+										<Setter Property="Background" Value="Transparent"/>
+										<Setter Property="BorderThickness" Value="0"/>
+									</Style>
+									<Style Selector="^ /template/ TextPresenter#PART_TextPresenter:disabled">
+										<Setter Property="TextElement.Foreground" Value="Black" />
+									</Style>
+								</Style>
+							</MaskedTextBox.Styles>
+						</MaskedTextBox>
+					</Grid>
 				</DataTemplate>
 				<DataTemplate x:Key="DateChangeCell" DataType="m:TableCatchModel">
-					<CalendarDatePicker SelectedDate="{Binding Date}"
-										IsEnabled="True"
-										Background="{x:Null}">
-					</CalendarDatePicker>
+					<Grid ColumnDefinitions="*, *">
+						<CalendarDatePicker 
+							Grid.Column="0"
+							HorizontalAlignment="Left"
+							SelectedDate="{Binding Date}"
+							IsEnabled="True"
+							Background="{x:Null}">
+						</CalendarDatePicker>
+						<MaskedTextBox
+							Grid.Column="1"
+							HorizontalAlignment="Left"
+							VerticalContentAlignment="Center"
+							PromptChar="0"
+							Mask="99\:99\:99"
+							Text="{Binding Time}"/>
+					</Grid>
+
 				</DataTemplate>
 				<DataTemplate x:Key="EditCell" DataType="m:TableCatchModel">
 					<Grid ColumnDefinitions="*, *, *">
