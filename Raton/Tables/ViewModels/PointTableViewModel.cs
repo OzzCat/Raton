@@ -181,7 +181,7 @@ namespace Raton.Tables.ViewModels
                     NumberStyles.AllowDecimalPoint
                     | NumberStyles.AllowLeadingSign,
                     CultureInfo.InvariantCulture, out latitude)
-                || latitude > 90 || latitude < -90)
+                || Math.Abs(latitude) > 90)
                 {
                     var boxLat = MessageBoxManager
                         .GetMessageBoxStandard("Error", "Point " + point.ID + " Latitude is in the wrong format",
@@ -194,7 +194,7 @@ namespace Raton.Tables.ViewModels
                     NumberStyles.AllowDecimalPoint
                     | NumberStyles.AllowLeadingSign,
                     CultureInfo.InvariantCulture, out longitude)
-                || longitude > 180 || longitude < -180)
+                || Math.Abs(longitude) > 180)
                 {
                     var boxLon = MessageBoxManager
                         .GetMessageBoxStandard("Error", "Point " + point.ID + " Longitude is in the wrong format",

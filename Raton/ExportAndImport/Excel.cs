@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Globalization;
 using static Raton.Models.DbModels.Enums.SexEnumClass;
 using Raton.Models.DbModels.Enums;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
 
 namespace Raton.ExportAndImport
 {
@@ -42,12 +43,23 @@ namespace Raton.ExportAndImport
                     return "Empty excel workbook";
                 }
 
-                int line = 2;
+                int line = 1;
 
                 bool rowIsNotEmpty = true;
 
                 while (rowIsNotEmpty)
                 {
+                    line++;
+                    rowIsNotEmpty = false;
+
+                    for (int col = 1; col < 8; col++)
+                    {
+                        if (firstWorksheet.Cells[line, col].Value is not null)
+                            rowIsNotEmpty = true;
+                    }
+                    if (!rowIsNotEmpty)
+                        break;
+
                     int animalTableID = 0;
                     int pointTableID = 0;
                     int seriesTableID = 0;
@@ -114,24 +126,72 @@ namespace Raton.ExportAndImport
 
                         pointModel.ID = pointID;
 
-                        try
+                        if (firstWorksheet.Cells[line, 4].Value is null)
                         {
-                            pointModel.Latitude = double.Parse
-                                (firstWorksheet.Cells[line, 4].Value.ToString(), CultureInfo.InvariantCulture);
-                            pointModel.Longitude = double.Parse
-                                (firstWorksheet.Cells[line, 5].Value.ToString(), CultureInfo.InvariantCulture);
-                        }
-                        catch
-                        {
-                            errorsList.Add("Line " + line.ToString() + " Latitude or Longitude don't match required pattern");
-                            line++;
+                            errorsList.Add("Line " + line.ToString() + ": Latitude can't be null");
                             continue;
                         }
+                        else if (firstWorksheet.Cells[line, 4].Value is not double)
+                        {
+
+                            if (double.TryParse(firstWorksheet.Cells[line, 4].Value.ToString(),
+                                    NumberStyles.AllowDecimalPoint | NumberStyles.AllowLeadingSign,
+                                    CultureInfo.InvariantCulture, out double latitude))
+                            {
+                                pointModel.Latitude = latitude;
+                            }
+                            else
+                            {
+                                errorsList.Add("Line " + line.ToString() + ": Latitude don't match required pattern");
+                                continue;
+                            }
+                        }
+                        else
+                        {
+                            pointModel.Latitude = (double)firstWorksheet.Cells[line, 4].Value;
+                        }
+
+                        if (Math.Abs(pointModel.Latitude) > 90)
+                        {
+                            errorsList.Add("Line " + line.ToString() + ": Latitude is out of bounds");
+                            continue;
+                        }
+
+                        if (firstWorksheet.Cells[line, 5].Value is null)
+                        {
+                            errorsList.Add("Line " + line.ToString() + ": Longitude can't be null");
+                            continue;
+                        }
+                        else if (firstWorksheet.Cells[line, 5].Value is not double)
+                        {
+                            if (double.TryParse(firstWorksheet.Cells[line, 5].Value.ToString()
+                                .Replace(" ", "").Replace(",", "."),
+                                    NumberStyles.AllowDecimalPoint | NumberStyles.AllowLeadingSign,
+                                    CultureInfo.InvariantCulture, out double longitude))
+                            {
+                                pointModel.Longitude = longitude;
+                            }
+                            else
+                            {
+                                errorsList.Add("Line " + line.ToString() + " Longitude don't match required pattern");
+                                continue;
+                            }
+                        }
+                        else
+                        {
+                            pointModel.Longitude = (double)firstWorksheet.Cells[line, 5].Value;
+                        }
+
+                        if (Math.Abs(pointModel.Longitude) > 180)
+                        {
+                            errorsList.Add("Line " + line.ToString() + ": Longitude is out of bounds");
+                            continue;
+                        }
+
                         if (firstWorksheet.Cells[line, 9].Value is not null)
                         {
                             pointModel.Comment = firstWorksheet.Cells[line, 9].Value.ToString();
                         }
-
 
                         pointService.Add(pointModel);
 
@@ -147,14 +207,26 @@ namespace Raton.ExportAndImport
 
                     #region Date and Series
                     var date = new DateTime();
-                    try
+                    if (firstWorksheet.Cells[line, 7].Value is null)
+                    {
+                        errorsList.Add("Line " + line.ToString() + ": DateTime for Catch is not presented");
+                        continue;
+                    }
+                    if (firstWorksheet.Cells[line, 7].Value is double)
+                    {
+                        date = DateTime.FromOADate((double)firstWorksheet.Cells[line, 7].Value);
+                    }
+                    else if (firstWorksheet.Cells[line, 7].Value is DateTime)
                     {
                         date = (DateTime)firstWorksheet.Cells[line, 7].Value;
                     }
-                    catch
+                    // Add parsing from scanner check
+                    else if (DateTime.TryParse(firstWorksheet.Cells[line, 7].Value.ToString(), out date))
                     {
-                        errorsList.Add("Line " + line.ToString() + " DateTime for Catch is not presented or is in wrong format");
-                        line++;
+                    }
+                    else
+                    {
+                        errorsList.Add("Line " + line.ToString() + ": DateTime for Catch is in the wrong format");
                         continue;
                     }
 
@@ -249,15 +321,6 @@ namespace Raton.ExportAndImport
 
                     newCatchList.Add(catchTableID);
                     #endregion
-
-                    line++;
-                    rowIsNotEmpty = false;
-
-                    for (int col = 1; col < 8; col++)
-                    {
-                        if (firstWorksheet.Cells[line, col].Value is not null)
-                            rowIsNotEmpty = true;
-                    }
                 }
             }
 
@@ -327,8 +390,8 @@ namespace Raton.ExportAndImport
                     firstWorksheet.Cells[line, 1].Value = cat.Animal.ID;
                     firstWorksheet.Cells[line, 2].Value = SexEnumClass.ConvertFromSexEnumToString(cat.Animal.Sex);
                     firstWorksheet.Cells[line, 3].Value = cat.Point.ID;
-                    firstWorksheet.Cells[line, 4].Value = cat.Point.Latitude.ToString(CultureInfo.InvariantCulture);
-                    firstWorksheet.Cells[line, 5].Value = cat.Point.Longitude.ToString(CultureInfo.InvariantCulture);
+                    firstWorksheet.Cells[line, 4].Value = cat.Point.Latitude;
+                    firstWorksheet.Cells[line, 5].Value = cat.Point.Longitude;
                     firstWorksheet.Cells[line, 6].Value = cat.Series.ID;
                     firstWorksheet.Cells[line, 7].Value = cat.Date.ToOADate();
                     firstWorksheet.Cells[line, 8].Value = cat.Animal.Comment;
