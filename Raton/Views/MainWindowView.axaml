@@ -57,7 +57,7 @@
 					HorizontalAlignment="Center"
 					Margin="5"
 					ToolTip.Tip="Export data to Excel"
-					Command="{Binding OpenDirectoryForExportCommand}">
+					Command="{Binding SaveFileCommand}">
 				<PathIcon Data="{DynamicResource table_move_right_regular}" />
 			</Button>
 			<Button

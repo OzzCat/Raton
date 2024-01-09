@@ -41,7 +41,7 @@ namespace Raton.ViewModels
 
         #region File Commands and Interactions
         public ICommand OpenFileCommand { get; }
-        public ICommand OpenDirectoryForExportCommand { get; }
+        public ICommand SaveFileCommand { get; }
         public ICommand DropDbCommand { get; }
         #endregion
 
@@ -91,29 +91,30 @@ namespace Raton.ViewModels
                 }
             });
 
-            OpenDirectoryForExportCommand = ReactiveCommand.CreateFromTask(async () =>
+            SaveFileCommand = ReactiveCommand.CreateFromTask(async () =>
             {
                 var storageProvider = Locator.Current.GetService<IStorageProvider>();
 
                 if (storageProvider is null)
                     throw new NotImplementedException();
 
-                var res = await storageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
+                var res = await storageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
                 {
                     Title = "Select a place to save your file",
-                    AllowMultiple = false
+                    SuggestedFileName = "ratonExport",
+                    DefaultExtension = ".xlsx",
+                    ShowOverwritePrompt = true
                 });
 
-                if (res is not null && res.Count != 0)
+                if (res is not null)
                 {
-                    var result = res.First();
-                    var filePath = result.Path.LocalPath;
+                    var filePath = res.Path.LocalPath;
                     
                     Excel.ExportToXlsx(filePath, _animalService, _pointService, _catchService, _seriesService);
 
                     var box = MessageBoxManager
                         .GetMessageBoxStandard("Export finished",
-                        "Result: ",
+                        "Successfully exported data",
                         ButtonEnum.Ok);
 
                     await box.ShowWindowAsync();

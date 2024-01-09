@@ -406,7 +406,7 @@ namespace Raton.ExportAndImport
                     line++;
                 }
 
-                FileInfo fi = new(filePath + "\\ratonExport.xlsx");
+                FileInfo fi = new(filePath);
 
                 excelPackage.SaveAs(fi);
             }
