@@ -52,7 +52,7 @@
 					Content="Filter By Series"/>
 				<Button
 					Grid.Column="1"
-					ToolTip.Tip="Refresh animals list"
+					ToolTip.Tip="Refresh sorting"
 					Command="{Binding RefreshAnimalListCommand}">
 					<PathIcon Data="{DynamicResource arrow_sync_circle_regular}" />
 				</Button>
