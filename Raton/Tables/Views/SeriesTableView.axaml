@@ -102,6 +102,7 @@
 						</Border>
 						<ColorPicker
 							Grid.Column="1"
+							Margin="3, 0, 0, 0"
 							Color="{Binding ItemColor}"/>
 					</Grid>
 				</DataTemplate>

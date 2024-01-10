@@ -15,6 +15,12 @@
 				Value="{DynamicResource MediumBrownBrush}"/>
 		<Setter Property="Foreground" Value="White"/>
 		<Setter Property="BorderThickness" Value="1, 0, 1, 3"/>
+		<Style Selector="^ TextBlock">
+			<Setter Property="FontSize" Value="14"/>
+			<Setter Property="FontWeight" Value="Bold"/>
+			<Setter Property="HorizontalAlignment" Value="Center"/>
+			<Setter Property="Margin" Value="0, 5, 0, 5"/>
+		</Style>
 		<Style Selector="^:pointerover /template/ Border#DataGridBorder">
 			<Setter Property="Background" Value="{DynamicResource MediumBrownBrush}" />
 			<Setter Property="BorderBrush" Value="{DynamicResource DarkBrownBrush}" />
