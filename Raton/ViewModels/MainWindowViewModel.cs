@@ -114,7 +114,7 @@ namespace Raton.ViewModels
 
                     var box = MessageBoxManager
                         .GetMessageBoxStandard("Export finished",
-                        "Successfully exported data",
+                        "Export finished",
                         ButtonEnum.Ok);
 
                     await box.ShowWindowAsync();
