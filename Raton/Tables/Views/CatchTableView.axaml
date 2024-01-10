@@ -125,6 +125,11 @@
 			</TreeDataGrid.DataTemplates>
 			<TreeDataGrid.Resources>
 				<DataTemplate x:Key="AnimalCell" DataType="m:TableCatchModel">
+					<TextBlock 
+						VerticalAlignment="Center"
+						Text="{Binding Animal}"/>
+				</DataTemplate>
+				<DataTemplate x:Key="AnimalCellEdit" DataType="m:TableCatchModel">
 					<AutoCompleteBox
 						Classes="cellAutoSelector"
 						ItemsSource="{Binding #CatchTable.((vm:CatchTableViewModel)DataContext).AnimalsList}"
@@ -132,6 +137,11 @@
 						SelectedItem="{Binding Animal}"/>
 				</DataTemplate>
 				<DataTemplate x:Key="PointCell" DataType="m:TableCatchModel">
+					<TextBlock
+						VerticalAlignment="Center"
+						Text="{Binding Point}"/>
+				</DataTemplate>
+				<DataTemplate x:Key="PointCellEdit" DataType="m:TableCatchModel">
 					<AutoCompleteBox
 						Classes="cellAutoSelector"
 						ItemsSource="{Binding #CatchTable.((vm:CatchTableViewModel)DataContext).PointsList}"
@@ -140,6 +150,11 @@
 					</AutoCompleteBox>
 				</DataTemplate>
 				<DataTemplate x:Key="SeriesCell" DataType="m:TableCatchModel">
+					<TextBlock
+						VerticalAlignment="Center"
+						Text="{Binding Series}"/>
+				</DataTemplate>
+				<DataTemplate x:Key="SeriesCellEdit" DataType="m:TableCatchModel">
 					<AutoCompleteBox
 							Classes="cellAutoSelector"
 							ItemsSource="{Binding #CatchTable.((vm:CatchTableViewModel)DataContext).SeriesList}"
@@ -149,47 +164,16 @@
 				</DataTemplate>
 				<DataTemplate x:Key="DateCell" DataType="m:TableCatchModel">
 					<Grid ColumnDefinitions="*, *">
-						<CalendarDatePicker 
-							SelectedDate="{Binding Date}"
-							IsEnabled="False"
+						<TextBlock
+							Grid.Column="0"
 							HorizontalAlignment="Left"
-							Grid.Column="0">
-							<CalendarDatePicker.Styles>
-								<Style Selector=":disabled">
-									<Style Selector="^ /template/ Border#Background">
-										<Setter Property="Background" Value="{x:Null}"/>
-										<Setter Property="BorderThickness" Value="0"/>
-									</Style>
-									<Style Selector="^ /template/ Button#PART_Button">
-										<Setter Property="IsVisible" Value="False" />
-									</Style>
-									<Style Selector="^ TextPresenter#PART_TextPresenter">
-										<Setter Property="TextElement.Foreground" Value="Black" />
-									</Style>
-								</Style>
-							</CalendarDatePicker.Styles>
-						</CalendarDatePicker>
-						<MaskedTextBox
+							VerticalAlignment="Center"
+							Text="{Binding Date.Value.Date, StringFormat={}{0:d}}"/>
+						<TextBlock
 							Grid.Column="1"
-							Mask="99\:99\:99"
-							VerticalContentAlignment="Center"
-							PromptChar="0"
 							HorizontalAlignment="Left"
-							Background="Transparent"
-							IsEnabled="False"
-							Text="{Binding Time}">
-							<MaskedTextBox.Styles>
-								<Style Selector=":disabled">
-									<Style Selector="^ /template/ Border#PART_BorderElement">
-										<Setter Property="Background" Value="Transparent"/>
-										<Setter Property="BorderThickness" Value="0"/>
-									</Style>
-									<Style Selector="^ /template/ TextPresenter#PART_TextPresenter:disabled">
-										<Setter Property="TextElement.Foreground" Value="Black" />
-									</Style>
-								</Style>
-							</MaskedTextBox.Styles>
-						</MaskedTextBox>
+							VerticalAlignment="Center"
+							Text="{Binding Time}"/>
 					</Grid>
 				</DataTemplate>
 				<DataTemplate x:Key="DateChangeCell" DataType="m:TableCatchModel">

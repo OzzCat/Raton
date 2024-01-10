@@ -11,6 +11,8 @@ using System.Globalization;
 using static Raton.Models.DbModels.Enums.SexEnumClass;
 using Raton.Models.DbModels.Enums;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
+using MsBox.Avalonia.Dto;
+using MsBox.Avalonia.Models;
 
 namespace Raton.ExportAndImport
 {
@@ -73,7 +75,7 @@ namespace Raton.ExportAndImport
                         continue;
                     }
 
-                    var animalID = firstWorksheet.Cells[line, 1].Value.ToString();
+                    var animalID = firstWorksheet.Cells[line, 1].Value.ToString().Trim();
 
                     var getAnimal = animalService.GetByID(animalID);
                     if (getAnimal is null)
@@ -117,7 +119,7 @@ namespace Raton.ExportAndImport
                         continue;
                     }
 
-                    var pointID = firstWorksheet.Cells[line, 3].Value.ToString();
+                    var pointID = firstWorksheet.Cells[line, 3].Value.ToString().Trim();
 
                     var getPoint = pointService.GetByID(pointID);
                     if (getPoint is null)
@@ -134,7 +136,8 @@ namespace Raton.ExportAndImport
                         else if (firstWorksheet.Cells[line, 4].Value is not double)
                         {
 
-                            if (double.TryParse(firstWorksheet.Cells[line, 4].Value.ToString(),
+                            if (double.TryParse(firstWorksheet.Cells[line, 4].Value.ToString()
+                                .Replace(" ", "").Replace(",", "."),
                                     NumberStyles.AllowDecimalPoint | NumberStyles.AllowLeadingSign,
                                     CultureInfo.InvariantCulture, out double latitude))
                             {
@@ -238,7 +241,7 @@ namespace Raton.ExportAndImport
                     }
                     else
                     {
-                        seriesID = firstWorksheet.Cells[line, 6].Value.ToString();
+                        seriesID = firstWorksheet.Cells[line, 6].Value.ToString().Trim();
                     }
 
                     var getSeries = seriesService.GetByID(seriesID);
@@ -328,18 +331,33 @@ namespace Raton.ExportAndImport
 
             if (errorsList.Count != 0)
             {
-                str = "Errors occured during data import:\n";
+                str = "Errors occured during data import\n";
+                str += "\nDo you want to revert import?";
                 foreach (var err in errorsList)
                     str += err + '\n';
-                str += "\nDo you want to revert import?";
+                
 
                 var box = MessageBoxManager
-                .GetMessageBoxStandard("Import Results", str,
-                ButtonEnum.YesNo);
+                .GetMessageBoxCustom(
+                    new MessageBoxCustomParams
+                    {
+                        ButtonDefinitions = new List<ButtonDefinition>
+                        {
+                            new ButtonDefinition { Name = "Yes", },
+                            new ButtonDefinition { Name = "No", },
+                        },
+
+                        ContentTitle = "title",
+                        MaxHeight= 400,
+                        ContentMessage = str,
+                        ShowInCenter = true
+                    });
+
+                
 
                 var deleteConfirmation = await box.ShowWindowAsync();
 
-                if (deleteConfirmation.Equals(ButtonResult.Yes))
+                if (deleteConfirmation.Equals("Yes"))
                 {
                     catchService.RemoveRangeByPKList(newCatchList);
                     seriesService.RemoveRangeByPKList(newSeriesList);

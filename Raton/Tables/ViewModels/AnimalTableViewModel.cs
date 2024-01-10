@@ -127,7 +127,7 @@ namespace Raton.Tables.ViewModels
                 );
             ItemsTree.Columns.Insert(
                 1,
-                new TemplateColumn<TableAnimalModel>(SexHeader, "SexCell", null, GridLength.Star)
+                new TemplateColumn<TableAnimalModel>(SexHeader, "SexCell", "SexCellEdit", GridLength.Star)
                 );
             ItemsTree.Columns.Insert(
                 2,

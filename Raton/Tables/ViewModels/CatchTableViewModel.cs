@@ -263,7 +263,7 @@ namespace Raton.Tables.ViewModels
                 new TemplateColumn<TableCatchModel>(
                         AnimalHeader,
                         "AnimalCell",
-                        null,
+                        "AnimalCellEdit",
                         GridLength.Star,
                         new()
                         {
@@ -276,7 +276,7 @@ namespace Raton.Tables.ViewModels
                 new TemplateColumn<TableCatchModel>(
                         PointHeader,
                         "PointCell",
-                        null,
+                        "PointCellEdit",
                         new GridLength(2, GridUnitType.Star),
                         new()
                         {
@@ -289,7 +289,7 @@ namespace Raton.Tables.ViewModels
                 new TemplateColumn<TableCatchModel>(
                         SeriesHeader,
                         "SeriesCell",
-                        null,
+                        "SeriesCellEdit",
                         GridLength.Star,
                         new()
                         {
@@ -444,8 +444,6 @@ namespace Raton.Tables.ViewModels
                     return;
                 }
                 #endregion
-
-                
 
                 #region Check Unique
                 var testUnique = _catchService.GetByAnimalPointSeriesAndDate(

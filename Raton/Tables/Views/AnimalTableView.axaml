@@ -85,8 +85,15 @@
 			</TreeDataGrid.DataTemplates>
 			<TreeDataGrid.Resources>
 				<DataTemplate x:Key="SexCell" DataType="m:TableAnimalModel">
+					<TextBlock
+						VerticalAlignment="Center"
+						HorizontalAlignment="Left"
+						Text="{Binding Sex}"/>
+				</DataTemplate>
+				<DataTemplate x:Key="SexCellEdit" DataType="m:TableAnimalModel">
 					<ComboBox
 						Classes="cellComboSelector"
+						HorizontalContentAlignment="Left"
 						ItemsSource="{Binding #AnimalTable.((vm:AnimalTableViewModel)DataContext).SexEnum}"
 						SelectedItem="{Binding Sex}">
 					</ComboBox>
