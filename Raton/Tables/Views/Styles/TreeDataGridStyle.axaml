@@ -22,8 +22,8 @@
 			<Setter Property="Margin" Value="0, 5, 0, 5"/>
 		</Style>
 		<Style Selector="^:pointerover /template/ Border#DataGridBorder">
-			<Setter Property="Background" Value="{DynamicResource MediumBrownBrush}" />
-			<Setter Property="BorderBrush" Value="{DynamicResource DarkBrownBrush}" />
+			<Setter Property="Background" Value="{DynamicResource LightBrownBrush}" />
+			<Setter Property="BorderBrush" Value="{DynamicResource MediumBrownBrush}" />
 			<Setter Property="TextBlock.Foreground" Value="White" />
 		</Style>
 	</Style>

@@ -107,6 +107,7 @@ namespace Raton.Tables.ViewModels
                         new()
                         {
                             CompareAscending = IsCheckedSortDescending,
+                            CompareDescending = IsCheckedSortDescending
                         })
                 },
             };
