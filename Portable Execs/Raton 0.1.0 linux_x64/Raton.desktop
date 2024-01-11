@@ -1,7 +1,0 @@
-[Desktop Entry]
-Version=1.0
-Name=Raton
-Comment=Run Raton from current directory
-Exec=sh -e -c "exec \\"\\$(dirname \\"\\$0\\")/Raton\\"" %k
-Terminal=false
-Type=Application
