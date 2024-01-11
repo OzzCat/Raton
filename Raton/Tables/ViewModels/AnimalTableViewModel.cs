@@ -178,12 +178,15 @@ namespace Raton.Tables.ViewModels
 
             if (testUnique is not null)
             {
-                var boxUnique = MessageBoxManager
+                if (dbAnimal.TableID != testUnique.TableID)
+                {
+                    var boxUnique = MessageBoxManager
                     .GetMessageBoxStandard("Error", "Animal with the same ID already exists",
                     ButtonEnum.Ok);
 
-                await boxUnique.ShowWindowAsync();
-                return;
+                    await boxUnique.ShowWindowAsync();
+                    return;
+                }
             }
             #endregion
 

@@ -157,11 +157,15 @@ namespace Raton.Tables.ViewModels
                var testUnique = _seriesService.GetByID(serie.ID);
                if (testUnique is not null)
                {
-                   var boxUnique = MessageBoxManager
-                       .GetMessageBoxStandard("Error", "Series with the same ID already exists",
+                   if (dbSerie.TableID != testUnique.TableID)
+                   {
+                       var boxUnique = MessageBoxManager
+                       .GetMessageBoxStandard("Error", "Series with the same Name already exists",
                        ButtonEnum.Ok);
-                   await boxUnique.ShowWindowAsync();
-                   return;
+
+                       await boxUnique.ShowWindowAsync();
+                       return;
+                   }
                }
                #endregion
 

@@ -224,12 +224,15 @@ namespace Raton.Tables.ViewModels
                 var testUnique = _pointService.GetByID(point.ID);
                 if (testUnique is not null)
                 {
-                    var boxUnique = MessageBoxManager
+                    if (dbPoint.TableID != testUnique.TableID)
+                    {
+                        var boxUnique = MessageBoxManager
                         .GetMessageBoxStandard("Error", "Point with the same Name already exists",
                         ButtonEnum.Ok);
 
-                    await boxUnique.ShowWindowAsync();
-                    return;
+                        await boxUnique.ShowWindowAsync();
+                        return;
+                    }   
                 }
                 #endregion
 
