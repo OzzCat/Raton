@@ -102,7 +102,8 @@ namespace Raton.ViewModels
                 {
                     Title = "Select a place to save your file",
                     SuggestedFileName = "ratonExport",
-                    DefaultExtension = ".xlsx",
+                    DefaultExtension = "xlsx",
+                    FileTypeChoices = new FilePickerFileType[] { new("ExcelFile") { Patterns = new[] { "*.xlsx" } }, FilePickerFileTypes.All },
                     ShowOverwritePrompt = true
                 });
 
