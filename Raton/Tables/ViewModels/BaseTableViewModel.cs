@@ -39,6 +39,17 @@ namespace Raton.Tables.ViewModels
         public ReactiveCommand<int, Unit> DeleteItemCommand { get; }
         #endregion
 
+        #region Sorting
+        protected int IsCheckedSortDescending(T? x, T? y)
+        {
+            if (x is null || y is null)
+                return Comparer<T>.Default.Compare(x, y);
+            var a = x.IsDirty;
+            var b = y.IsDirty;
+            return Comparer<bool>.Default.Compare(b, a);
+        }
+        #endregion
+
         private T? _newItem;
         public T? NewItem
         {
@@ -92,7 +103,11 @@ namespace Raton.Tables.ViewModels
                     new TemplateColumn<T>(buttonHeader,
                         "EditCell",
                         null,
-                        GridLength.Auto)
+                        GridLength.Auto,
+                        new()
+                        {
+                            CompareAscending = IsCheckedSortDescending,
+                        })
                 },
             };
 
