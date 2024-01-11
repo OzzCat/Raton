@@ -49,6 +49,26 @@ namespace Raton.Tables.ViewModels
         }
         #endregion
 
+        #region Sorting
+        private int SexSortAscending(TableAnimalModel? x, TableAnimalModel? y)
+        {
+            if (x is null || y is null)
+                return Comparer<TableAnimalModel>.Default.Compare(x, y);
+            var a = x.Sex;
+            var b = y.Sex;
+            return Comparer<string>.Default.Compare(a, b);
+        }
+
+        private int SexSortDescending(TableAnimalModel? x, TableAnimalModel? y)
+        {
+            if (x is null || y is null)
+                return Comparer<TableAnimalModel>.Default.Compare(x, y);
+            var a = x.Sex;
+            var b = y.Sex;
+            return Comparer<string>.Default.Compare(b, a);
+        }
+        #endregion
+
         private readonly IAnimalService _animalService;
 
         public AnimalTableViewModel(IScreen screen, IAnimalService animalService) : base(screen)
@@ -127,7 +147,16 @@ namespace Raton.Tables.ViewModels
                 );
             ItemsTree.Columns.Insert(
                 1,
-                new TemplateColumn<TableAnimalModel>(SexHeader, "SexCell", "SexCellEdit", GridLength.Star)
+                new TemplateColumn<TableAnimalModel>(
+                    SexHeader, 
+                    "SexCell", 
+                    "SexCellEdit", 
+                    GridLength.Star,
+                    new()
+                    {
+                        CompareAscending = SexSortAscending,
+                        CompareDescending = SexSortDescending,
+                    })
                 );
             ItemsTree.Columns.Insert(
                 2,
